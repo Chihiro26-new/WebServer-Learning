@@ -1,7 +1,6 @@
 #include "Epoll.h"
 #include "Channel.h"
 #include <assert.h>
-#include <cstddef>
 #include <sys/epoll.h>
 #include <cstdio>
 #include <vector>
@@ -11,12 +10,13 @@ const int EventsNum=4096;
 Epoll::Epoll():epollFd_(epoll_create1(EPOLL_CLOEXEC)), 
     events_(EventsNum) 
 {
+    std::cout<<" Epoll creat success!"<<std::endl;
     assert(epollFd_ > 0);
 }
 Epoll::~Epoll() {
     close(epollFd_);
 }
-
+int Epoll::getEpollFd()const{return epollFd_;};
 void Epoll::add(Channel*channel)
 {
     int fd=channel->getFd();
@@ -50,6 +50,7 @@ void Epoll::modify(Channel* channel)
             perror("epoll_modify error");
             return;
         }
+    channel->updateLastEvents();//更新修改
 }
 void Epoll::remove(Channel* channel)
 {
@@ -73,6 +74,7 @@ std::vector<Channel*> Epoll::poll(int timeout)
     {
         int fd=events_[i].data.fd;
         Channel* channel = channels_[fd];
+        channel->setRevents(events_[i].events);
         activeChannels.push_back(channel);
     }
     return activeChannels;

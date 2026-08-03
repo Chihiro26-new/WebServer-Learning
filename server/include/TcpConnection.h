@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include "Socket.h"
+#include <sys/socket.h>
 class EventLoop;
 class Channel;
 class TcpConnection
@@ -14,7 +15,7 @@ public:
     void handleRead();
     void handleWrite();
 private:
-    Socket fd_;
+    Socket socket_;
     EventLoop* loop_;
     std::shared_ptr<Channel> channel_;
     std::string readBuffer_;

@@ -2,6 +2,7 @@
 #include <sys/epoll.h>
 #include "Channel.h"
 #include <vector>
+#include <iostream>
 #include <unordered_map>
 class Epoll
 {

@@ -26,6 +26,14 @@ class Channel
         void setConnHandler(CallBack cb);
         /*解析revents*/
         void handleEvents();
+        bool hasEventsChanged();
+        void updateLastEvents();
+
+        void enableWriting();
+        void disableWriting();
+
+        void setRevents(uint32_t events);
+        void setEvents(uint32_t events);
     private:
         
         /*channel回调函数*/
@@ -42,4 +50,5 @@ class Channel
         int fd_;
         uint32_t events_;//当前 Channel 关注的事件
         uint32_t revents_;//epoll返回的实际发生事件
+        uint32_t lastEvents_;//
 };

@@ -5,14 +5,11 @@ class Epoll;
 class EventLoop
 {
     public:
-    EventLoop();
-    ~EventLoop();
-    void loop();
-
-    void removeChannel(Channel* channel);
-    void addChannel(Channel* channel);
-
+        EventLoop();
+        ~EventLoop();
+        void loop();
+        void removeChannel(Channel* channel);
+        void addChannel(Channel* channel);
     private:
-    Epoll epoll_;
-
+        Epoll epoll_;
 };
