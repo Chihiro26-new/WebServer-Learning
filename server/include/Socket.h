@@ -10,7 +10,7 @@ public:
 
     ~Socket();
     int setNonBlocking();
-    int setNoDelay();
+    int setNoDelay();//禁用Nagle
     int setReuseAddr();
     int setNoLinger();
     int shutdownWrite();
