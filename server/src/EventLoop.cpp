@@ -1,6 +1,6 @@
 #include "EventLoop.h"
 #include "Channel.h"
-EventLoop::EventLoop(){std::cout<<" EventLoop creat success! "<<std::endl;}
+EventLoop::EventLoop(){std::cout<<"EventLoop creat success! "<<std::endl;}
 EventLoop::~EventLoop(){}
 
 void EventLoop::loop()

@@ -7,10 +7,13 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <iostream>
 const int LISTENQ=2048; 
-Socket::Socket(int fd):fd_(fd){}
+Socket::Socket(int fd):fd_(fd){std::cout << "Socket creat success! "<< std::endl;}
 Socket::~Socket()
-{
+{   
+    
+    std::cout <<"Socket close fd = "<< fd_<< std::endl;
     if(fd_ >= 0)
         close(fd_);
 }
@@ -18,6 +21,8 @@ Socket::~Socket()
 Socket::Socket(Socket&& other) noexcept
     : fd_(other.fd_)
 {
+    std::cout << "move construct from fd = "
+              << other.fd_ << std::endl;
     other.fd_ = -1;
 }
 Socket& Socket::operator=(Socket&& other) noexcept

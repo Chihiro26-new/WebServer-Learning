@@ -5,7 +5,7 @@ Acceptor::Acceptor(EventLoop* loop,int port):
     channel_(loop, acceptSocket_.getfd()),
     loop_(loop)
 {
-    std::cout << " Acceptor create success!" << std::endl;
+    std::cout << "Acceptor create success!" << std::endl;
     channel_.setReadHandler([this](){handleRead();});
     loop_->addChannel(&channel_);
 }
@@ -23,7 +23,7 @@ void Acceptor::handleRead()
         nullptr,
         nullptr
     );
-    std::cout << "connfd = " << connfd << std::endl;
+    std::cout << "find the connfd = " << connfd << std::endl;
     if(connfd < 0)
     {
         perror("accept");

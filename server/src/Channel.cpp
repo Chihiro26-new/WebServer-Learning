@@ -2,7 +2,6 @@
 #include <cstdint>
 #include <sys/epoll.h>
 #include <iostream>
-uint32_t Channel::getEvents()const {return events_;}
 
 Channel::Channel(EventLoop* loop, int fd)
     : loop_(loop),
@@ -11,26 +10,18 @@ Channel::Channel(EventLoop* loop, int fd)
       revents_(0),
       lastEvents_(0){}
 
-int Channel::getFd() const{return fd_;}
-
-void Channel::setFd(int fd){fd_=fd;}
-
+uint32_t Channel::getEvents()const{return events_;}
 uint32_t Channel::getREvents()const{return revents_;}
+uint32_t Channel::getLastEvents()const{return lastEvents_;}
 
+int Channel::getFd() const{return fd_;}
+void Channel::setFd(int fd){fd_=fd;}
 
 void Channel::setReadHandler(CallBack cb)
 {
     readHandler_ = std::move(cb);
 }
-bool Channel::hasEventsChanged()
-{
-    return lastEvents_ != events_;
-}
 
-void Channel::updateLastEvents()
-{
-    lastEvents_=events_;
-}
 void Channel::setWriteHandler(CallBack cb)
 {
     writeHandler_ = std::move(cb);
@@ -45,7 +36,19 @@ void Channel::setConnHandler(CallBack cb)
 {
     connHandler_ = std::move(cb);
 }
+void Channel::setCloseHandler(CallBack cb)
+{
+    closeHandler_=std::move(cb);
+}
+bool Channel::hasEventsChanged()
+{
+    return lastEvents_ != events_;
+}
 
+void Channel::updateLastEvents()
+{
+    lastEvents_=events_;
+}
 void Channel::enableWriting()
 {
     events_ |= EPOLLOUT;
@@ -60,24 +63,43 @@ void Channel::setRevents(uint32_t events)
 {
     revents_ = events;
 }
+
 void Channel::setEvents(uint32_t events)
 {
     events_ = events;
 }
+
 void Channel::handleEvents()
 {
-    std::cout << "Channel handleEvents, revents = "<< revents_
-          << std::endl;
-    if(revents_&EPOLLERR){
-        if(errorHandler_)
-            errorHandler_();
-    }
-    if(revents_&EPOLLIN){
-        if(readHandler_)
-            readHandler_();
-    }
-    if(revents_ & EPOLLOUT){
-        if(writeHandler_)
-            writeHandler_();
-    }
+        // socket错误
+        if (revents_ & EPOLLERR)
+        {
+            std::cout<< "Channel handleEvents:Error\n";
+            if(errorHandler_)
+                errorHandler_();
+            return;
+        }
+        // 可读事件
+        if (revents_ & (EPOLLIN | EPOLLPRI))
+        {
+            std::cout<< "Channel handleEvents:Read\n";
+            if(readHandler_)
+                readHandler_();
+        }
+
+        // 对端关闭
+        if (revents_ & (EPOLLRDHUP | EPOLLHUP))
+        {
+            std::cout<< "Channel handleEvents:Close\n";
+            if(closeHandler_)
+                closeHandler_();
+            return;
+        }
+        // 可写事件
+        if (revents_ & EPOLLOUT)
+        {
+            std::cout<< "Channel handleEvents:Write\n";
+            if(writeHandler_)
+                writeHandler_();
+        }
 }

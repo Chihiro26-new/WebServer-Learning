@@ -9,7 +9,7 @@ class Acceptor
         void setNewConnectionCallback(NewConnectionCallback cb);
         void handleRead();//处理listen的fd
     private:
-        NewConnectionCallback newConnectionCallback_;
+        NewConnectionCallback newConnectionCallback_;//回调server
         Socket acceptSocket_;   //监听socket
         Channel channel_;       //监听事件
         EventLoop* loop_;

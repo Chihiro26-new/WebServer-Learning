@@ -10,7 +10,7 @@ const int EventsNum=4096;
 Epoll::Epoll():epollFd_(epoll_create1(EPOLL_CLOEXEC)), 
     events_(EventsNum) 
 {
-    std::cout<<" Epoll creat success!"<<std::endl;
+    std::cout<<"Epoll creat success!"<<std::endl;
     assert(epollFd_ > 0);
 }
 Epoll::~Epoll() {
