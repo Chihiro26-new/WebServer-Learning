@@ -5,17 +5,22 @@
 #include <memory>
 #include "Socket.h"
 #include <sys/socket.h>
-class EventLoop;
-class Channel;
+class ProtocolHandler;
 class TcpConnection:
     public std::enable_shared_from_this<TcpConnection>
 {
+public:
     using TcpConnectionPtr=std::shared_ptr<TcpConnection>;
     using MessageCallback =std::function<void(TcpConnectionPtr)>;
     using CloseCallback = std::function<void(int)>;
+    
 public:
     TcpConnection(EventLoop* loop,int fd);
     ~TcpConnection();
+
+    Buffer& getInputBuffer();
+    Buffer& getOutputBuffer();
+    void setProtocolHandler(std::shared_ptr<ProtocolHandler> handle);
     void sendMsg(const std::string&msg);
     void setMessageCallback(MessageCallback cb);//通知http处理数据流
     void setCloseCallback(CloseCallback cb);//通知上层server关闭tcp流
@@ -32,4 +37,5 @@ private:
     std::shared_ptr<Channel> channel_;
     Buffer inputBuffer_;//读缓冲
     Buffer outputBuffer_;//写缓冲
+    std::shared_ptr<ProtocolHandler>handler_;
 };

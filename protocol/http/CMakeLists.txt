@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.10)
+
+
+file(GLOB HTTP_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+)
+
+
+add_library(http_protocol STATIC
+    ${HTTP_SRC}
+)
+
+target_include_directories(
+    http_protocol
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(
+    http_protocol
+    PUBLIC
+    server_net
+)

@@ -3,7 +3,7 @@
 #include <string>
 class HttpResponse
 {
- public:
+public:
     void setStatusCode(int code);
     void setBody(const std::string& body);
     std::string toString();

@@ -5,12 +5,11 @@
 #include <unistd.h>
 #include <sys/uio.h>
 /**
- * @brief TCP连接的用户态缓冲区
+ * TCP连接的用户态缓冲区
  *
  * Buffer负责管理从Socket读取的字节流，
  * 提供数据缓存、追加、读取、消费等操作。
  *
- * 它不关心上层协议（HTTP、RPC等）的具体格式，
  * 只负责字节数据的存储和管理。
  *
  * 主要功能：
@@ -82,7 +81,7 @@ private:
     void ensureWritable(size_t len);//确保Buffer空间
 
     void makeSpace(size_t len);//整理Buffer空间
-
+    
 private:
     std::vector<char> buffer_;
     // 读位置

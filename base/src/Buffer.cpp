@@ -33,6 +33,10 @@ void Buffer::append(
     writerIndex_ += len;
 }
 
+const char* Buffer::peek() const
+{
+    return begin() + readerIndex_;
+}
 void Buffer::append(const std::string& data)
 {
     append(data.data(), data.size());

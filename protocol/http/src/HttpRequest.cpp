@@ -1,4 +1,7 @@
 #include "HttpRequest.h"
+HttpRequest::HttpRequest(){}
+HttpRequest::~HttpRequest(){}
+
 void HttpRequest::reset()
 {
     method_.clear();
@@ -13,6 +16,15 @@ void HttpRequest::setMethod(const std::string&method)
 void HttpRequest::setPath(const std::string& path)
 {
     path_ = path;
+}
+void HttpRequest::setVersion(const std::string&version)
+{
+    version_=version;
+}
+
+void HttpRequest::setBody(const std::string&body)
+{
+    body_=body;
 }
 void HttpRequest::addHeader(const std::string& key,const std::string& value)
 {

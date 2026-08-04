@@ -17,4 +17,6 @@ target_include_directories(server_core
 target_link_libraries(server_core
     PUBLIC
     server_base
+    server_net
+    server_protocol
 )

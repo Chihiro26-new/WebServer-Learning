@@ -17,7 +17,7 @@ private:
     // 客户端连接断开后
     // 从 Server 的连接管理表中移除对应的TcpConnection
     void removeConnection(int fd);
-
+    void onMessage(TcpConnection::TcpConnectionPtr conn);
 private:
     EventLoop* loop_;//EventLoop 驱动
     std::unique_ptr<Acceptor> acceptor_;// 管理所有客户端连接

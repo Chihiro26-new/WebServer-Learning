@@ -1,10 +1,11 @@
 #include "TcpConnection.h"
-#include "EventLoop.h"
 #include <climits>
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>
-#include <string.h>
+
+
+
 const int BUFSIZE=1024;
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
     :socket_(fd),loop_(loop),channel_(std::make_shared<Channel>(loop,fd))
@@ -21,6 +22,20 @@ TcpConnection::~TcpConnection()
 {
     std::cout << "TcpConnection destructor" << std::endl;
     loop_->removeChannel(channel_.get());
+}
+
+Buffer& TcpConnection::getInputBuffer()
+{
+    return inputBuffer_;
+}
+Buffer& TcpConnection::getOutputBuffer()
+{
+    return outputBuffer_;
+}
+
+void TcpConnection::setProtocolHandler(std::shared_ptr<ProtocolHandler> handler)
+{
+    handler_ = std::move(handler);
 }
 void TcpConnection::sendMsg(const std::string&msg)
 {
@@ -41,6 +56,7 @@ void TcpConnection::handleRead()
     ssize_t n=inputBuffer_.readFd(socket_.getfd());
     if(n>0)
     {
+        std::cout<<"call message callback"<<std::endl;
         if(messageCallback_)
             messageCallback_(shared_from_this());
     }

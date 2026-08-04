@@ -5,7 +5,12 @@ project(WebServer)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(base)
+add_subdirectory(protocol)
+add_subdirectory(net)
 add_subdirectory(server)
-
 add_executable(WebServer Main.cpp)
-target_link_libraries(WebServer server_core)
+
+target_link_libraries(
+    WebServer
+    server_core
+)
