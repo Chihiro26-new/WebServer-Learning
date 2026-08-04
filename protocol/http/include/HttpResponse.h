@@ -9,7 +9,6 @@ public:
     std::string toString();
 
 private:
-
     int statusCode_;
     std::map<std::string,std::string> headers_;
     std::string body_;

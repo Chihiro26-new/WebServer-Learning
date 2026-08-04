@@ -43,16 +43,13 @@ public:
     static const size_t kInitialSize = 1024;//Buffer默认初始容量
     explicit Buffer(size_t initialSize = kInitialSize);
 
-    // 可读数据
-    size_t readableBytes() const;
-    // 可写空间
-    size_t writableBytes() const;
+    size_t readableBytes() const;// 可读数据
 
-    // 前置空间
-    size_t prependableBytes() const;
+    size_t writableBytes() const;// 可写空间
 
-    // 当前可读位置
-    const char* peek() const;
+    size_t prependableBytes() const;// 前置空间
+
+    const char* peek() const;// 当前可读位置
 
     // 写入数据
     void append(const char* data,size_t len);
@@ -84,8 +81,8 @@ private:
     
 private:
     std::vector<char> buffer_;
-    // 读位置
-    size_t readerIndex_;
-    // 写位置
-    size_t writerIndex_;
+
+    size_t readerIndex_;// 读位置
+    
+    size_t writerIndex_;// 写位置
 };

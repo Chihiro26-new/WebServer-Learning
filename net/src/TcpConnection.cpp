@@ -1,10 +1,9 @@
 #include "TcpConnection.h"
+#include "ProtocolHandler.h"
 #include <climits>
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>
-
-
 
 const int BUFSIZE=1024;
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
@@ -21,7 +20,6 @@ TcpConnection::TcpConnection(EventLoop*loop,int fd)
 TcpConnection::~TcpConnection()
 {
     std::cout << "TcpConnection destructor" << std::endl;
-    loop_->removeChannel(channel_.get());
 }
 
 Buffer& TcpConnection::getInputBuffer()
@@ -35,7 +33,7 @@ Buffer& TcpConnection::getOutputBuffer()
 
 void TcpConnection::setProtocolHandler(std::shared_ptr<ProtocolHandler> handler)
 {
-    handler_ = std::move(handler);
+     handler_ = handler;
 }
 void TcpConnection::sendMsg(const std::string&msg)
 {
@@ -46,23 +44,22 @@ void TcpConnection::setCloseCallback(CloseCallback cb)
 {
     closeCallback_ = std::move(cb);
 }
-void TcpConnection::setMessageCallback(MessageCallback cb)
-{
-    messageCallback_=std::move(cb);   
-}
+
 void TcpConnection::handleRead()
 {
-    std::cout << "handleRead called" << std::endl;
+    auto self = shared_from_this();
     ssize_t n=inputBuffer_.readFd(socket_.getfd());
     if(n>0)
     {
-        std::cout<<"call message callback"<<std::endl;
-        if(messageCallback_)
-            messageCallback_(shared_from_this());
+        std::cout<<"call message callback\n";
+        if(handler_)
+        {
+            handler_->onMessage(shared_from_this());
+        }
     }
     else if(n == 0)
     {
-        std::cout<<"client closed"<<std::endl;
+        std::cout<<"client closed\n";
         handleClose();
     }
     else
@@ -72,6 +69,7 @@ void TcpConnection::handleRead()
         handleError();
     }
 }
+
 
 void TcpConnection::handleWrite()
 {
@@ -93,7 +91,9 @@ void TcpConnection::handleWrite()
 
 void TcpConnection::handleClose()
 {
-    std::cout<<"connection close"<<std::endl;
+    std::cout<<"connection close\n";
+    channel_->setClosed();
+    loop_->removeChannel(channel_.get());
     if(closeCallback_)
         closeCallback_(socket_.getfd());
 }

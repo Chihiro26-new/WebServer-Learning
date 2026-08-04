@@ -14,6 +14,8 @@ void EventLoop::loop()
         for(auto c:channels)
         {
             c->handleEvents();
+            if(c->isClosed())
+                continue;
             if(c->hasEventsChanged())
             {
                 epoll_.modify(c);

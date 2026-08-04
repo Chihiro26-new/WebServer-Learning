@@ -129,10 +129,7 @@ ssize_t Buffer::readFd(int fd)
 
 std::string Buffer::retrieveAllAsString()
 {
-    std::string result(
-        peek(),
-        readableBytes()
-    );
+    std::string result(peek(),readableBytes());
     retrieveAll();
     return result;
 }

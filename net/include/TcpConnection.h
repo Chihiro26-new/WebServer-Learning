@@ -11,7 +11,6 @@ class TcpConnection:
 {
 public:
     using TcpConnectionPtr=std::shared_ptr<TcpConnection>;
-    using MessageCallback =std::function<void(TcpConnectionPtr)>;
     using CloseCallback = std::function<void(int)>;
     
 public:
@@ -22,7 +21,6 @@ public:
     Buffer& getOutputBuffer();
     void setProtocolHandler(std::shared_ptr<ProtocolHandler> handle);
     void sendMsg(const std::string&msg);
-    void setMessageCallback(MessageCallback cb);//通知http处理数据流
     void setCloseCallback(CloseCallback cb);//通知上层server关闭tcp流
     void handleRead();
     void handleWrite();
@@ -31,7 +29,6 @@ public:
     void handleConn();
 private:
     CloseCallback closeCallback_;
-    MessageCallback messageCallback_;
     Socket socket_;
     EventLoop* loop_;
     std::shared_ptr<Channel> channel_;

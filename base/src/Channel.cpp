@@ -6,6 +6,7 @@
 Channel::Channel(EventLoop* loop, int fd)
     : loop_(loop),
       fd_(fd),
+      closed_(false),
       events_(EPOLLIN),
       revents_(0),
       lastEvents_(0){}
@@ -16,7 +17,10 @@ uint32_t Channel::getLastEvents()const{return lastEvents_;}
 
 int Channel::getFd() const{return fd_;}
 void Channel::setFd(int fd){fd_=fd;}
-
+void Channel::setClosed(){   std::cout<<"setClosed fd="
+             <<fd_
+             <<std::endl;closed_ = true;}
+bool Channel::isClosed(){return closed_;};
 void Channel::setReadHandler(CallBack cb)
 {
     readHandler_ = std::move(cb);
@@ -52,6 +56,9 @@ void Channel::updateLastEvents()
 void Channel::enableWriting()
 {
     events_ |= EPOLLOUT;
+    std::cout<<"enable EPOLLOUT events="
+             <<events_
+             <<std::endl;
 }
 
 void Channel::disableWriting()
@@ -85,6 +92,8 @@ void Channel::handleEvents()
             std::cout<< "Channel handleEvents:Read\n";
             if(readHandler_)
                 readHandler_();
+            if(closed_)
+                return;
         }
 
         // 对端关闭

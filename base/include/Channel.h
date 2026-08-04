@@ -21,7 +21,8 @@ public:
     
     void setFd(int fd);
     int getFd() const;
-
+    void setClosed();
+    bool isClosed();
     /*Channel 设置不同事件发生时应该调用的回调函数*/
     void setReadHandler(CallBack cb);
     void setWriteHandler(CallBack cb);
@@ -52,6 +53,7 @@ private:
     // 一个 Channel 由一个 EventLoop 管理
     // 用于事件分发和任务调度
     int fd_;
+    bool closed_;
     uint32_t events_;//当前 Channel 关注的事件
     uint32_t revents_;//epoll返回的实际发生事件
     uint32_t lastEvents_;//上一次向 epoll 注册的监听状态
