@@ -1,6 +1,8 @@
 #include "TcpConnection.h"
 #include "EventLoop.h"
+#include <climits>
 #include <iostream>
+#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
 const int BUFSIZE=1024;
@@ -20,21 +22,27 @@ TcpConnection::~TcpConnection()
     std::cout << "TcpConnection destructor" << std::endl;
     loop_->removeChannel(channel_.get());
 }
- void TcpConnection::setCloseCallback(CloseCallback cb)
+void TcpConnection::sendMsg(const std::string&msg)
+{
+    outputBuffer_.append(msg);
+    channel_->enableWriting();
+}
+void TcpConnection::setCloseCallback(CloseCallback cb)
 {
     closeCallback_ = std::move(cb);
+}
+void TcpConnection::setMessageCallback(MessageCallback cb)
+{
+    messageCallback_=std::move(cb);   
 }
 void TcpConnection::handleRead()
 {
     std::cout << "handleRead called" << std::endl;
-    char buf[BUFSIZE];
-    int n = recv(socket_.getfd(),buf,sizeof(buf),0);
+    ssize_t n=inputBuffer_.readFd(socket_.getfd());
     if(n>0)
     {
-        std::string msg(buf,n);
-        std::cout<<msg<<std::endl;
-        writeBuffer_ += msg;
-        channel_->enableWriting();
+        if(messageCallback_)
+            messageCallback_(shared_from_this());
     }
     else if(n == 0)
     {
@@ -51,23 +59,20 @@ void TcpConnection::handleRead()
 
 void TcpConnection::handleWrite()
 {
-    if(writeBuffer_.empty())
+    if(outputBuffer_.readableBytes()==0)
     {
         channel_->disableWriting();
         return;
     }
-    int n = send(socket_.getfd(),
-                 writeBuffer_.data(),
-                 writeBuffer_.size(),
-                 0);
-    if(n > 0)
-    {
-        std::cout<<writeBuffer_.substr(0,n)<<std::endl;
-        writeBuffer_.erase(0, n);
-    }
-    if(writeBuffer_.empty()){
+    ssize_t n=send(socket_.getfd(),
+                  outputBuffer_.peek(),
+                    outputBuffer_.readableBytes(),
+                0);
+
+    if(n>0)
+        outputBuffer_.retrieve(n);
+    if(outputBuffer_.readableBytes()==0)
         channel_->disableWriting();
-    }
 }
 
 void TcpConnection::handleClose()

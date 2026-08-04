@@ -1,18 +1,23 @@
 #pragma once
 #include "Channel.h"
 #include "EventLoop.h"
+#include "Buffer.h"
 #include <memory>
-#include <string>
 #include "Socket.h"
 #include <sys/socket.h>
 class EventLoop;
 class Channel;
-class TcpConnection
+class TcpConnection:
+    public std::enable_shared_from_this<TcpConnection>
 {
+    using TcpConnectionPtr=std::shared_ptr<TcpConnection>;
+    using MessageCallback =std::function<void(TcpConnectionPtr)>;
     using CloseCallback = std::function<void(int)>;
 public:
     TcpConnection(EventLoop* loop,int fd);
     ~TcpConnection();
+    void sendMsg(const std::string&msg);
+    void setMessageCallback(MessageCallback cb);//通知http处理数据流
     void setCloseCallback(CloseCallback cb);//通知上层server关闭tcp流
     void handleRead();
     void handleWrite();
@@ -21,9 +26,10 @@ public:
     void handleConn();
 private:
     CloseCallback closeCallback_;
+    MessageCallback messageCallback_;
     Socket socket_;
     EventLoop* loop_;
     std::shared_ptr<Channel> channel_;
-    std::string readBuffer_;//读缓冲
-    std::string writeBuffer_;//写缓冲
+    Buffer inputBuffer_;//读缓冲
+    Buffer outputBuffer_;//写缓冲
 };
