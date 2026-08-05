@@ -119,12 +119,11 @@ TimerQueue::handleExpired()
 ---
 
 ### Network Layer
-```
 net
 ├── Socket
 ├── Acceptor
 └── TcpConnection
-```
+
 
 ---
 ### TcpConnection
@@ -184,13 +183,9 @@ Timer 基于小根堆实现：
 
 EventLoop 根据最近到期时间调整 epoll 等待时间：
 Timer exists:
-
 epoll_wait(timeout)
-
 No Timer:
-
 epoll_wait(-1)
-
 
 支持：
 * 延迟任务执行
@@ -200,42 +195,26 @@ epoll_wait(-1)
 
 ## Protocol Design
 协议层采用接口抽象：
-
 ProtocolHandler
-
-        |
-        |
- +------+------+
-HTTP    Echo    Redis
-
-
-TcpConnection 不关注具体协议，只负责传输数据。
-协议解析与业务逻辑由对应 Handler 完成。
-
+分层实现Echo Http Redis协议解析设计
 ---
 
 ## Connection Timeout Example
 TCP 建立连接后注册 Timer：
 Client Connect
-
-      |
-      v
-
+    |
+    v
 TcpConnection
 
-      |
-      v
-
+    |
+    v
 TimerQueue
 
-      |
-      v
-
+    |
+    v
 Timeout
-
-      |
-      v
-
+    |
+    v
 close connection
 
 ---
