@@ -1,4 +1,5 @@
 #include "HttpContext.h"
+#include "Buffer.h"
 HttpContext::HttpContext(){}
 
 bool HttpContext::gotAll()const

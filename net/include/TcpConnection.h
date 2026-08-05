@@ -1,11 +1,11 @@
 #pragma once
-#include "Channel.h"
-#include "EventLoop.h"
-#include "Buffer.h"
 #include <memory>
+#include "Buffer.h"
 #include "Socket.h"
-#include <sys/socket.h>
+#include <functional>
 class ProtocolHandler;
+class Channel;
+class EventLoop;
 class TcpConnection:
     public std::enable_shared_from_this<TcpConnection>
 {
@@ -27,6 +27,8 @@ public:
     void handleClose();
     void handleError();
     void handleConn();
+    void connectEstablished();
+    void startTimeout();
 private:
     CloseCallback closeCallback_;
     Socket socket_;

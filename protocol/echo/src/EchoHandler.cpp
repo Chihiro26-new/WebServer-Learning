@@ -1,6 +1,6 @@
 #include "EchoHandler.h"
 #include "TcpConnection.h"
-
+#include <iostream>
 void EchoHandler::onMessage(TcpConnectionPtr conn)
 {
     auto& buffer=conn->getInputBuffer();

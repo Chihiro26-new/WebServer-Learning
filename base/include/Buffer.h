@@ -1,9 +1,6 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <cstring>
-#include <unistd.h>
-#include <sys/uio.h>
 /**
  * TCP连接的用户态缓冲区
  *

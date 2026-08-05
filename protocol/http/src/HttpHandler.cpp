@@ -1,5 +1,4 @@
 #include "HttpHandler.h"
-#include <iostream>
 #include <memory>
 #include "TcpConnection.h"
 #include "HttpParser.h"

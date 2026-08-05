@@ -1,7 +1,6 @@
 #pragma once
-#include "Buffer.h"
 #include "HttpRequest.h"
-
+class Buffer;
 enum class ParseResult
 {
     Continue,       //当前解析成功，还没结束

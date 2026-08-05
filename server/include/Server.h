@@ -1,5 +1,12 @@
 #pragma once
-#include "Acceptor.h"
+#include <memory>
+#include <unordered_map>
+
+class EventLoop;
+class Acceptor;
+class ProtocolHandler;
+class TcpConnection;
+
 class Server
 {
 public:
@@ -19,7 +26,7 @@ private:
     void removeConnection(int fd);
 private:
     EventLoop* loop_;//EventLoop 驱动
-    std::unique_ptr<Acceptor> acceptor_;// 管理所有客户端连接
+    std::unique_ptr<Acceptor> acceptor_;// 管理监听socket，负责接收新连接
     std::shared_ptr<ProtocolHandler> handler_;//服务器类型
     // 管理所有已经建立的客户端连接 
     // key: 客户端 socket fd 

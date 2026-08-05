@@ -1,4 +1,7 @@
 #include "Buffer.h"
+#include <sys/uio.h>
+#include <unistd.h>
+#include <cstring>
 Buffer::Buffer(size_t initialSize)
 :
 buffer_(kCheapPrepend + initialSize),

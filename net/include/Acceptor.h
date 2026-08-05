@@ -1,5 +1,8 @@
 #pragma once
-#include "TcpConnection.h"
+#include "Socket.h"
+#include "Channel.h"
+
+class EventLoop;
 class Acceptor
 {
 public:

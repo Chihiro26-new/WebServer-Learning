@@ -1,6 +1,6 @@
 #include "HttpParser.h"
 #include <sstream>
-
+#include "Buffer.h"
 ParseResult HttpParser::parseRequestLine(
         Buffer& buffer,
         HttpRequest& request)

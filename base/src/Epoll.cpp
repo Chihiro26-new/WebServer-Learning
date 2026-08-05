@@ -5,10 +5,10 @@
 #include <cstdio>
 #include <vector>
 #include <unistd.h>
+#include <iostream>
 const int EventsNum=4096;
-
 Epoll::Epoll():epollFd_(epoll_create1(EPOLL_CLOEXEC)), 
-    events_(EventsNum) 
+    events_(EventsNum)
 {
     std::cout<<"Epoll creat success!"<<std::endl;
     assert(epollFd_ > 0);

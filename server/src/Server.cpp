@@ -1,5 +1,10 @@
 #include "Server.h"
+#include "Acceptor.h"
 #include "ProtocolHandler.h"
+#include "TcpConnection.h"
+#include "EventLoop.h"
+
+#include <iostream>
 Server::Server(EventLoop* loop,int port,std::shared_ptr<ProtocolHandler> handler)
     :loop_(loop),
      acceptor_(std::make_unique<Acceptor>(loop,port))
@@ -16,6 +21,7 @@ void Server::newConnection(int fd)
     conn->setProtocolHandler(handler_);
     conn->setCloseCallback([this](auto fd){removeConnection(fd);});
     connections_[fd] = conn;
+    conn->connectEstablished();
 }
 void Server::removeConnection(int fd)
 {

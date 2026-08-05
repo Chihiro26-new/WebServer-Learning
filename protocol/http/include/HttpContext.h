@@ -1,7 +1,7 @@
 #pragma once
 #include "HttpParser.h"
 #include "HttpRequest.h"
-#include "Buffer.h"
+class Buffer;
 // 管理一次HTTP请求解析状态
 class HttpContext
 {

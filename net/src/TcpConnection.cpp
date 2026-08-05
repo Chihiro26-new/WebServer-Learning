@@ -1,10 +1,12 @@
 #include "TcpConnection.h"
 #include "ProtocolHandler.h"
-#include <climits>
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include "Channel.h"
+#include "EventLoop.h"
+#include <sys/socket.h>
+#include <string.h>
 const int BUFSIZE=1024;
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
     :socket_(fd),loop_(loop),channel_(std::make_shared<Channel>(loop,fd))
@@ -91,7 +93,7 @@ void TcpConnection::handleWrite()
 
 void TcpConnection::handleClose()
 {
-    std::cout<<"connection close\n";
+    std::cout<<"Tcp connection close\n";
     channel_->setClosed();
     loop_->removeChannel(channel_.get());
     if(closeCallback_)
@@ -113,5 +115,28 @@ void TcpConnection::handleError()
 }
 void TcpConnection::handleConn()
 {
-    std::cout<<"connection established"<<std::endl;
+    std::cout<<"channal connection established"<<std::endl;
+}
+
+void TcpConnection::connectEstablished()
+{
+    std::cout<<"Tcp connection established\n";
+    startTimeout();
+}
+void TcpConnection::startTimeout()
+{
+    auto weakSelf = weak_from_this();
+    loop_->addTimer(
+        Clock::now()+std::chrono::seconds(5),
+        [weakSelf]()
+        {
+            std::cout<<"Tcp time out timer creat!"<<std::endl;
+            if(auto self = weakSelf.lock())
+            {
+                std::cout<<"before close\n";
+                self->handleClose();
+                std::cout<<"after close\n";
+            }
+        }
+    );
 }
