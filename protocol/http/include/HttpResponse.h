@@ -1,16 +1,18 @@
 #pragma once
-#include <map>
+#include <unordered_map>
 #include <string>
 class HttpResponse
 {
 public:
+    HttpResponse();
+    ~HttpResponse();
     void setStatusCode(int code);
     void setBody(const std::string& body);
-    std::string toString();
-
+    std::string toString()const;
+    void addHeader(const std::string& key,const std::string& value);
 private:
-    int statusCode_;
-    std::map<std::string,std::string> headers_;
+    int statusCode_;//状态码
+    std::unordered_map<std::string,std::string> headers_;
     std::string body_;
 };
 

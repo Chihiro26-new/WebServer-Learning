@@ -7,8 +7,8 @@
 #include "Timer.h"
 int main(int argc,char *argv[])
 {
-    auto echoHandler = std::make_shared<EchoHandler>();
-    // auto httpHandler = std::make_shared<HttpHandler>();
+    // auto echoHandler = std::make_shared<EchoHandler>();
+    auto httpHandler = std::make_shared<HttpHandler>();
     // auto redisHandler = std::make_shared<RedisHandler>();
     EventLoop loop;
     // loop.addTimer(
@@ -26,7 +26,7 @@ int main(int argc,char *argv[])
             std::cout<<"Timer2 callback!\n";
         }
     );
-    Server my_server(&loop,8080,echoHandler);
+    Server my_server(&loop,8080,httpHandler);
     loop.loop();
     return 0;
 }

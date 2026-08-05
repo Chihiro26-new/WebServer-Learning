@@ -94,6 +94,10 @@ void TcpConnection::handleWrite()
 void TcpConnection::handleClose()
 {
     std::cout<<"Tcp connection close\n";
+    if(handler_)
+    {
+        handler_->onClose(shared_from_this());
+    }
     channel_->setClosed();
     loop_->removeChannel(channel_.get());
     if(closeCallback_)
@@ -121,13 +125,17 @@ void TcpConnection::handleConn()
 void TcpConnection::connectEstablished()
 {
     std::cout<<"Tcp connection established\n";
-    startTimeout();
+    if(handler_)
+    {
+        handler_->onConnection(shared_from_this());
+    }
+    //startTimeout();
 }
 void TcpConnection::startTimeout()
 {
     auto weakSelf = weak_from_this();
     loop_->addTimer(
-        Clock::now()+std::chrono::seconds(5),
+        Clock::now()+std::chrono::seconds(20),
         [weakSelf]()
         {
             std::cout<<"Tcp time out timer creat!"<<std::endl;

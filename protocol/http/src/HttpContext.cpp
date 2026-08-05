@@ -1,13 +1,19 @@
 #include "HttpContext.h"
 #include "Buffer.h"
-HttpContext::HttpContext(){}
-
+#include <iostream>
+HttpContext::HttpContext():state_(RequestLine){}
+HttpContext::~HttpContext(){}
 bool HttpContext::gotAll()const
 {
     return state_==Finish;
 }
+void HttpContext::reset()
+{
+    state_ = RequestLine;
+    request_.reset();
+}
 
-HttpRequest& HttpContext::request()
+const HttpRequest& HttpContext::request()const
 {
     return request_;
 }
@@ -16,11 +22,18 @@ bool HttpContext::parseRequest(Buffer& buffer)
 {
     while(true)
     {
+        //  std::cout 
+        //     << "state = "
+        //     << state_
+        //     << " readable="
+        //     << buffer.readableBytes()
+        //     << std::endl;
         ParseResult result;
         switch(state_)
         {
         case RequestLine:
         {
+            std::cout<<"parse request line"<<std::endl;
             result =
                 parser_.parseRequestLine(
                     buffer,
@@ -34,12 +47,20 @@ bool HttpContext::parseRequest(Buffer& buffer)
 
             if(result == ParseResult::NeedMoreData)
             {
+                std::cout 
+                << "need more data"
+                << std::endl;
+
                 return false;
             }
 
 
             if(result == ParseResult::Error)
             {
+                std::cout 
+                << "parse error"
+                << std::endl;
+
                 return false;
             }
 
@@ -47,6 +68,7 @@ bool HttpContext::parseRequest(Buffer& buffer)
         }
         case Headers:
         {
+            // std::cout<<"parse headers"<<std::endl;
             result =
                 parser_.parseHeader(
                     buffer,
@@ -83,6 +105,7 @@ bool HttpContext::parseRequest(Buffer& buffer)
 
         case Body:
         {
+            // std::cout<<"parse body"<<std::endl;
             result =
                 parser_.parseBody(
                     buffer,

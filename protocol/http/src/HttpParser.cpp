@@ -1,12 +1,12 @@
 #include "HttpParser.h"
 #include <sstream>
 #include "Buffer.h"
+#include <iostream>
 ParseResult HttpParser::parseRequestLine(
         Buffer& buffer,
         HttpRequest& request)
 {
     std::string line;
-
     // Buffer里面没有完整一行
     if(!getLine(buffer,line))
     {
@@ -95,12 +95,8 @@ bool HttpParser::getLine(
         {
 
             line.assign(start,i);
-
-
             // 消费掉这一行+CRLF
             buffer.retrieve(i+2);
-
-
             return true;
         }
     }
@@ -112,16 +108,33 @@ bool HttpParser::splitRequestLine(
         const std::string& line,
         HttpRequest& request)
 {
+     std::cout
+        << "request line = ["
+        << line
+        << "]"
+        << std::endl;
 
     std::istringstream iss(line);
 
     std::string method;
     std::string path;
     std::string version;
-
     iss >> method
         >> path
         >> version;
+        
+    std::cout
+        << "method=["
+        << method
+        << "] "
+        << "path=["
+        << path
+        << "] "
+        << "version=["
+        << version
+        << "]"
+        << std::endl;
+  
     if(method.empty() ||
        path.empty() ||
        version.empty())

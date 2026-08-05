@@ -16,9 +16,10 @@ public:
 
 public:
     HttpContext();
+    ~HttpContext();
     bool parseRequest(Buffer& buffer);//调度解析器
     bool gotAll()const;// 判断请求是否解析完成
-    HttpRequest& request();// 获取解析完成的请求
+    const HttpRequest& request() const;// 获取解析完成的请求
     void reset();// 重置状态，用于keep-alive下处理下一次请求
 private:
     State state_;// 当前解析状态
