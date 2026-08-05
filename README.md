@@ -81,24 +81,20 @@ while(true)
 
     |
     v
-
 epoll_wait()
 
     |
     v
-
 Channel::handleEvents()
 
     |
     v
-
 TimerQueue::handleExpired()
 
 
 ### Epoll
 
 封装 Linux epoll：
-
 支持：
 * epoll_create
 * epoll_ctl
@@ -138,32 +134,22 @@ net
 * 超时检测
 
 连接生命周期：
-accept
-
-  |
-  v
-
-TcpConnection create
-
-  |
-  v
-
-EventLoop register
-
-  |
-  v
-
-handle events
-
-  |
-  v
-
-timeout / close
-
-  |
-  v
-
-resource release
+        accept
+            |
+            v
+        TcpConnection create
+            |
+            v
+        EventLoop register
+            |
+            v
+        handle events
+            |
+            v
+        timeout / close
+            |
+            v
+        resource release
 
 
 ---
