@@ -3,14 +3,11 @@
 #include "ProtocolHandler.h"
 #include "TcpConnection.h"
 #include "EventLoop.h"
-
-#include <iostream>
 Server::Server(EventLoop* loop,int port,std::shared_ptr<ProtocolHandler> handler)
     :loop_(loop),
      acceptor_(std::make_unique<Acceptor>(loop,port))
     ,handler_(handler)
 {
-    std::cout << "Server create success!" << std::endl;
     //server调用callback设置tcp通信socket
     acceptor_->setNewConnectionCallback([this](int fd){newConnection(fd);});
 }
@@ -25,7 +22,7 @@ void Server::newConnection(int fd)
 }
 void Server::removeConnection(int fd)
 {
-    std::cout << "remove connection fd = " << fd << std::endl;
+    // std::cout << "remove connection fd = " << fd << std::endl;
     connections_.erase(fd);
 }
 

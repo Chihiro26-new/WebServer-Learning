@@ -1,17 +1,18 @@
 #include "TcpConnection.h"
 #include "ProtocolHandler.h"
-#include <iostream>
 #include <sys/types.h>
 #include <unistd.h>
 #include "Channel.h"
 #include "EventLoop.h"
 #include <sys/socket.h>
+#include <iostream>
 #include <string.h>
 const int BUFSIZE=1024;
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
-    :socket_(fd),loop_(loop),channel_(std::make_shared<Channel>(loop,fd))
+    :socket_(fd),loop_(loop),channel_(std::make_unique<Channel>(loop,fd))
+    ,state_(ConnectionState::Connecting),closeReason_(CloseReason::None)
+    ,timerManager_(loop)
 {
-    std::cout<<"Tcp creat success!"<<std::endl;
     channel_->setReadHandler([this](){handleRead();});
     channel_->setWriteHandler([this](){handleWrite();});
     channel_->setCloseHandler([this](){handleClose();});
@@ -21,7 +22,7 @@ TcpConnection::TcpConnection(EventLoop*loop,int fd)
 }
 TcpConnection::~TcpConnection()
 {
-    std::cout << "TcpConnection destructor" << std::endl;
+    
 }
 
 Buffer& TcpConnection::getInputBuffer()
@@ -39,9 +40,44 @@ void TcpConnection::setProtocolHandler(std::shared_ptr<ProtocolHandler> handler)
 }
 void TcpConnection::sendMsg(const std::string&msg)
 {
+    if(state_ != ConnectionState::Connected)
+    {
+        return;
+    }
     outputBuffer_.append(msg);
     channel_->enableWriting();
 }
+void TcpConnection::startDisconnect()
+{
+    if(state_!=ConnectionState::Connected)
+    {
+        return;
+    }
+    closeReason_=CloseReason::ServerClose;
+    setState(ConnectionState::Disconnecting);
+    timerManager_.startCloseTimer();
+}
+
+void TcpConnection::forceClose(CloseReason reason)
+{
+    if(state_ == ConnectionState::Disconnected)
+            return;
+    closeReason_=reason;
+    handleClose();
+}
+void TcpConnection::setState(ConnectionState state)
+{
+    // std::cout
+    //     << "fd="
+    //     << socket_.getfd()
+    //     << " state "
+    //     << static_cast<int>(state_)
+    //     << " -> "
+    //     << static_cast<int>(state)
+    //     << std::endl;
+    state_=state;
+}
+
 void TcpConnection::setCloseCallback(CloseCallback cb)
 {
     closeCallback_ = std::move(cb);
@@ -49,11 +85,17 @@ void TcpConnection::setCloseCallback(CloseCallback cb)
 
 void TcpConnection::handleRead()
 {
-    auto self = shared_from_this();
     ssize_t n=inputBuffer_.readFd(socket_.getfd());
+    // std::cout 
+    // <<"read bytes="
+    // <<n
+    // <<" buffer readable="
+    // <<inputBuffer_.readableBytes()
+    // <<std::endl;
     if(n>0)
     {
-        std::cout<<"call message callback\n";
+        timerManager_.refreshIdleTimer();
+        // std::cout<<"call message callback\n";
         if(handler_)
         {
             handler_->onMessage(shared_from_this());
@@ -61,7 +103,7 @@ void TcpConnection::handleRead()
     }
     else if(n == 0)
     {
-        std::cout<<"client closed\n";
+        // std::cout<<"client closed\n";
         handleClose();
     }
     else
@@ -75,29 +117,51 @@ void TcpConnection::handleRead()
 
 void TcpConnection::handleWrite()
 {
-    if(outputBuffer_.readableBytes()==0)
+     while(outputBuffer_.readableBytes()>0)
     {
-        channel_->disableWriting();
-        return;
-    }
-    ssize_t n=send(socket_.getfd(),
-                  outputBuffer_.peek(),
-                    outputBuffer_.readableBytes(),
-                0);
+        ssize_t n = send(
+            socket_.getfd(),
+            outputBuffer_.peek(),
+            outputBuffer_.readableBytes(),
+            MSG_NOSIGNAL
+        );
 
-    if(n>0)
-        outputBuffer_.retrieve(n);
-    if(outputBuffer_.readableBytes()==0)
-        channel_->disableWriting();
+        if(n > 0)
+        {
+            outputBuffer_.retrieve(n);
+            timerManager_.refreshIdleTimer();
+        }
+        else
+        {
+            if(errno == EAGAIN ||
+               errno == EWOULDBLOCK)
+            {
+                return;
+            }
+            handleError();
+            return;
+        }
+    }
+    channel_->disableWriting();
+    if(state_ == ConnectionState::Disconnecting)
+    {
+        handleClose();
+    }
 }
 
 void TcpConnection::handleClose()
 {
-    std::cout<<"Tcp connection close\n";
+    if(state_ == ConnectionState::Disconnected)
+    {
+        return;
+    }
+    // std::cout<<"Tcp connection close\n";
+    setState(ConnectionState::Disconnected);
     if(handler_)
     {
         handler_->onClose(shared_from_this());
     }
+    timerManager_.cancelAll();
     channel_->setClosed();
     loop_->removeChannel(channel_.get());
     if(closeCallback_)
@@ -115,7 +179,7 @@ void TcpConnection::handleError()
         &len
     );
     std::cerr << "socket error: "<< strerror(err)<< std::endl;
-    handleClose();
+    forceClose(CloseReason::Error);
 }
 void TcpConnection::handleConn()
 {
@@ -124,27 +188,16 @@ void TcpConnection::handleConn()
 
 void TcpConnection::connectEstablished()
 {
-    std::cout<<"Tcp connection established\n";
+    timerManager_.setConnection(
+        shared_from_this()
+    );
+    setState(ConnectionState::Connected);
+    timerManager_.startIdleTimer();
     if(handler_)
     {
-        handler_->onConnection(shared_from_this());
+        handler_->onConnection(
+            shared_from_this()
+        );
     }
-    //startTimeout();
 }
-void TcpConnection::startTimeout()
-{
-    auto weakSelf = weak_from_this();
-    loop_->addTimer(
-        Clock::now()+std::chrono::seconds(20),
-        [weakSelf]()
-        {
-            std::cout<<"Tcp time out timer creat!"<<std::endl;
-            if(auto self = weakSelf.lock())
-            {
-                std::cout<<"before close\n";
-                self->handleClose();
-                std::cout<<"after close\n";
-            }
-        }
-    );
-}
+

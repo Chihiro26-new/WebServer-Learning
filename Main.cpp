@@ -5,10 +5,12 @@
 #include "RedisHandler.h"
 #include <iostream>
 #include "Timer.h"
+#include "Util.h"
 int main(int argc,char *argv[])
 {
-    // auto echoHandler = std::make_shared<EchoHandler>();
-    auto httpHandler = std::make_shared<HttpHandler>();
+    handle_for_sigpipe();
+    auto echoHandler = std::make_shared<EchoHandler>();
+    // auto httpHandler = std::make_shared<HttpHandler>();
     // auto redisHandler = std::make_shared<RedisHandler>();
     EventLoop loop;
     // loop.addTimer(
@@ -19,14 +21,14 @@ int main(int argc,char *argv[])
     //     }
     // );
 
-    loop.addTimer(
-        Clock::now() + std::chrono::seconds(3),
-        []()
-        {
-            std::cout<<"Timer2 callback!\n";
-        }
-    );
-    Server my_server(&loop,8080,httpHandler);
+    // loop.addTimer(
+    //     Clock::now() + std::chrono::seconds(3),
+    //     []()
+    //     {
+    //         std::cout<<"Timer callback!\n";
+    //     }
+    // );
+    Server my_server(&loop,8080,echoHandler);
     loop.loop();
     return 0;
 }

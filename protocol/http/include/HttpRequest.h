@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <map>
 #include <unordered_map>
 /*保存解析后的 HTTP 请求信息*/
 class HttpRequest
@@ -15,8 +14,8 @@ public:
     void setBody(const std::string&body);
     void addHeader(const std::string& key,const std::string& value);
     const std::string& getHeader(const std::string&key)const;
-
-
+    bool keepAlive() const;//判断长链接
+    bool hasBody() const;
     const std::string& method() const;
     const std::string& path() const;
     const std::string& version() const;

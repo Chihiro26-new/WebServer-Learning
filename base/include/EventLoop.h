@@ -1,6 +1,7 @@
 #pragma once
 #include "Epoll.h"
 #include "Timer.h"
+#include "TimerId.h"
 class EventLoop
 {
 public:
@@ -10,7 +11,8 @@ public:
     void removeChannel(Channel* channel);
     void addChannel(Channel* channel);
     int getTimeout(const TimePoint& expire);
-    void addTimer(TimePoint expire,Timer::Callback cb);
+    void cancelTimer(TimerId timerId_);
+    TimerId addTimer(TimePoint expire,Timer::Callback cb);
 private:
     Epoll epoll_;
     TimerQueue timerQueue_;//定时器

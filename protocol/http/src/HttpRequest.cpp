@@ -1,7 +1,7 @@
 #include "HttpRequest.h"
 HttpRequest::HttpRequest(){}
 HttpRequest::~HttpRequest(){}
-
+#include <iostream>
 void HttpRequest::reset()
 {
     method_.clear();
@@ -30,6 +30,12 @@ void HttpRequest::setBody(const std::string&body)
 }
 void HttpRequest::addHeader(const std::string& key,const std::string& value)
 {
+     std::cout 
+        << "header: "
+        << key 
+        << "="
+        << value
+        << std::endl;
     headers_[key] = value;
 }
 const std::string&HttpRequest::method() const
@@ -57,3 +63,28 @@ const std::string& HttpRequest::getHeader(const std::string&key)const
     return empty;
 }
 
+bool HttpRequest::keepAlive()const
+{
+    auto it = headers_.find("Connection");
+    if(it != headers_.end())
+    {
+        if(it->second == "close")
+            return false;
+        if(it->second == "keep-alive")
+            return true;
+    }
+    if(version_ == "HTTP/1.1")// HTTP/1.1 默认保持
+    {
+        return true;
+    }
+    return false;// HTTP/1.0 默认关闭
+}
+bool HttpRequest::hasBody() const
+{
+    auto it = headers_.find("Content-Length");
+    if(it == headers_.end())
+    {
+        return false;
+    }
+    return std::stoi(it->second) > 0;
+}

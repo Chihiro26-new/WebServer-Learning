@@ -1,11 +1,11 @@
 #include "EventLoop.h"
 #include "Channel.h"
 #include "Timer.h"
+#include "TimerId.h"
 #include <iostream>
 
 EventLoop::EventLoop()
 {
-    std::cout<<"EventLoop creat success! "<<std::endl;
 }
 
 EventLoop::~EventLoop(){}
@@ -25,12 +25,17 @@ int EventLoop::getTimeout(const TimePoint& expire)
         expire - now
     ).count();
 }
-
-void EventLoop::addTimer(TimePoint expire,Timer::Callback cb)
+void EventLoop::cancelTimer(TimerId timerId_)
 {
-    auto timer = std::make_shared<Timer>
-    (expire,std::move(cb));
-    timerQueue_.addTimer(timer);
+    timerQueue_.cancel(timerId_);
+}
+TimerId EventLoop::addTimer(TimePoint expire,Timer::Callback cb)
+{
+    auto timer = std::make_shared<Timer>(
+        expire,
+        std::move(cb)
+    );
+    return timerQueue_.add(timer);
 }
 void EventLoop::loop()
 {
@@ -38,9 +43,9 @@ void EventLoop::loop()
     {
         auto expire = timerQueue_.getNextExpire();
         int timeout = getTimeout(expire);
-            std::cout<<"epoll wait timeout = "
-             <<timeout
-             <<std::endl;
+            // std::cout<<"epoll wait timeout = "
+            //  <<timeout
+            //  <<std::endl;
         auto channels = epoll_.poll(timeout);
         for(auto c:channels)
         {

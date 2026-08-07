@@ -9,3 +9,12 @@ void EchoHandler::onMessage(TcpConnectionPtr conn)
     std::cout << "echo recv: "<< msg<< std::endl;
     conn->sendMsg(msg);
 }
+
+void EchoHandler::onClose(TcpConnectionPtr conn)
+{
+    std::cout<<"Echo close\n";
+}
+void EchoHandler::onConnection(TcpConnectionPtr conn)
+{
+
+}

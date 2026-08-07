@@ -1,7 +1,6 @@
 #include "HttpParser.h"
 #include <sstream>
 #include "Buffer.h"
-#include <iostream>
 ParseResult HttpParser::parseRequestLine(
         Buffer& buffer,
         HttpRequest& request)
@@ -108,11 +107,11 @@ bool HttpParser::splitRequestLine(
         const std::string& line,
         HttpRequest& request)
 {
-     std::cout
-        << "request line = ["
-        << line
-        << "]"
-        << std::endl;
+    //  std::cout
+    //     << "request line = ["
+    //     << line
+    //     << "]"
+    //     << std::endl;
 
     std::istringstream iss(line);
 
@@ -122,18 +121,18 @@ bool HttpParser::splitRequestLine(
     iss >> method
         >> path
         >> version;
-        
-    std::cout
-        << "method=["
-        << method
-        << "] "
-        << "path=["
-        << path
-        << "] "
-        << "version=["
-        << version
-        << "]"
-        << std::endl;
+
+    // std::cout
+    //     << "method=["
+    //     << method
+    //     << "] "
+    //     << "path=["
+    //     << path
+    //     << "] "
+    //     << "version=["
+    //     << version
+    //     << "]"
+    //     << std::endl;
   
     if(method.empty() ||
        path.empty() ||
@@ -154,14 +153,12 @@ bool HttpParser::splitHeader(
         const std::string& line,
         HttpRequest& request)
 {
-
     auto pos =
         line.find(':');
     if(pos==std::string::npos)
     {
         return false;
     }
-
     std::string key =
         line.substr(0,pos);
     std::string value =

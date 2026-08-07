@@ -33,7 +33,7 @@ bool HttpContext::parseRequest(Buffer& buffer)
         {
         case RequestLine:
         {
-            std::cout<<"parse request line"<<std::endl;
+            // std::cout<<"parse request line"<<std::endl;
             result =
                 parser_.parseRequestLine(
                     buffer,
@@ -47,19 +47,18 @@ bool HttpContext::parseRequest(Buffer& buffer)
 
             if(result == ParseResult::NeedMoreData)
             {
-                std::cout 
-                << "need more data"
-                << std::endl;
-
+                // std::cout 
+                // << "need more data"
+                // << std::endl;
                 return false;
             }
 
 
             if(result == ParseResult::Error)
             {
-                std::cout 
-                << "parse error"
-                << std::endl;
+                // std::cout 
+                // << "parse error"
+                // << std::endl;
 
                 return false;
             }
@@ -77,7 +76,14 @@ bool HttpContext::parseRequest(Buffer& buffer)
 
             if(result == ParseResult::Done)
             {
-                state_ = Body;
+                if(request_.hasBody())
+                {
+                    state_ = Body;
+                }
+                else
+                {
+                    state_ = Finish;
+                }
                 continue;
             }
 

@@ -2,7 +2,7 @@
 #include <sstream>
 
 HttpResponse::HttpResponse()
-    :statusCode_(200)
+    :statusCode_(200),closeConnection_(false)
 {
 
 }
@@ -20,6 +20,15 @@ void HttpResponse::setBody(const std::string& body)
 void HttpResponse::addHeader(const std::string& key,const std::string& value)
 {
     headers_[key]=value;
+}
+void HttpResponse::setCloseConnection(bool on)
+{
+    closeConnection_ = on;
+}
+
+bool HttpResponse::closeConnection() const
+{
+    return closeConnection_;
 }
 
 std::string HttpResponse::toString() const
