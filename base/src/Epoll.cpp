@@ -4,7 +4,6 @@
 #include <sys/epoll.h>
 #include <cstdio>
 #include <vector>
-#include <iostream>
 #include <unistd.h>
 const int EventsNum=4096;
 Epoll::Epoll():epollFd_(epoll_create1(EPOLL_CLOEXEC)), 
@@ -22,10 +21,10 @@ void Epoll::add(Channel*channel)
     epoll_event event{};
     event.data.fd=fd;
     event.events=channel->getEvents();
-        std::cout 
-    <<"epoll add fd="
-    <<fd
-    <<std::endl;
+    //     std::cout 
+    // <<"epoll add fd="
+    // <<fd
+    // <<std::endl;
     if(epoll_ctl(
         epollFd_,
         EPOLL_CTL_ADD,

@@ -2,7 +2,6 @@
 #include "Channel.h"
 #include "Timer.h"
 #include "TimerId.h"
-#include <iostream>
 
 EventLoop::EventLoop()
 {
@@ -50,10 +49,8 @@ void EventLoop::loop()
         for(auto c:channels)
         {
             c->handleEvents();
-
             if(c->isClosed())
                 continue;
-
             if(c->hasEventsChanged())
             {
                 epoll_.modify(c);

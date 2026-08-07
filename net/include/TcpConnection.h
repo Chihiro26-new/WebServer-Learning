@@ -41,21 +41,20 @@ public:
     void sendMsg(const std::string&msg);
     void startDisconnect();
     void forceClose(CloseReason reason);
-    void setState(ConnectionState state);
     void setCloseCallback(CloseCallback cb);//通知上层server关闭tcp流
+    void connectEstablished();
 
+private:
 
+    void setState(ConnectionState);
     void handleRead();
     void handleWrite();
     void handleClose();
     void handleError();
     void handleConn();
-
-    void connectEstablished();
-
-    void startTimeout();
-    void checkTimeout();
+    void maybeShrinkBuffer();
 private:
+   
     CloseCallback closeCallback_;
     Socket socket_;
     EventLoop* loop_;

@@ -47,7 +47,7 @@ public:
     size_t prependableBytes() const;// 前置空间
 
     const char* peek() const;// 当前可读位置
-
+    void shrink();
     // 写入数据
     void append(const char* data,size_t len);
     void append(const std::string& data);
@@ -57,7 +57,8 @@ public:
     std::string retrieveAllAsString();//调试
     // 从fd读取
     ssize_t readFd(int fd);
-
+    size_t capacity() const;
+    size_t size()const;
 private:
     char* begin()
     {
@@ -75,7 +76,6 @@ private:
     void ensureWritable(size_t len);//确保Buffer空间
 
     void makeSpace(size_t len);//整理Buffer空间
-    
 private:
     std::vector<char> buffer_;
 

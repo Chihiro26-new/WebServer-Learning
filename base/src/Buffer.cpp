@@ -23,6 +23,20 @@ size_t Buffer::prependableBytes() const
     return readerIndex_;
 }
 
+void Buffer::shrink()
+{
+    std::vector<char> buf(kCheapPrepend + readableBytes());
+    std::copy(
+        begin()+readerIndex_,
+        begin()+writerIndex_,
+        buf.begin()+kCheapPrepend
+    );
+    size_t readable = readableBytes();
+    buffer_.swap(buf);
+    readerIndex_=kCheapPrepend;
+    writerIndex_ = readerIndex_ + readable;
+
+}
 void Buffer::append(
     const char* data,
     size_t len)
@@ -77,6 +91,14 @@ void Buffer::makeSpace(size_t len)
     }
 }
 
+size_t Buffer::capacity() const
+{
+    return buffer_.capacity();
+}
+size_t Buffer::size() const
+{
+    return buffer_.size();
+}
 void Buffer::retrieve(size_t len)
 {
     if(len < readableBytes())

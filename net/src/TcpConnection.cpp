@@ -83,6 +83,14 @@ void TcpConnection::setCloseCallback(CloseCallback cb)
     closeCallback_ = std::move(cb);
 }
 
+void TcpConnection::maybeShrinkBuffer()
+{
+    if(inputBuffer_.size()> 1024 * 1024 &&
+       inputBuffer_.readableBytes() < 4096)
+    {
+        inputBuffer_.shrink();
+    }
+}
 void TcpConnection::handleRead()
 {
     ssize_t n=inputBuffer_.readFd(socket_.getfd());
@@ -99,6 +107,7 @@ void TcpConnection::handleRead()
         if(handler_)
         {
             handler_->onMessage(shared_from_this());
+            maybeShrinkBuffer();
         }
     }
     else if(n == 0)

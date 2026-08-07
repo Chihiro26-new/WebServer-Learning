@@ -7,7 +7,6 @@ public:
     explicit Socket(int fd);
     Socket(Socket&& other) noexcept;//移动构造
     Socket& operator=(Socket&& other) noexcept;
-
     ~Socket();
     int setNonBlocking();
     int setNoDelay();//禁用Nagle

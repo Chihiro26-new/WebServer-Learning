@@ -43,27 +43,21 @@ public:
         void setConnection(
                 std::weak_ptr<TcpConnection> conn
             );
-
         void startIdleTimer();
         void refreshIdleTimer();
         void startCloseTimer();
         void startHeartbeatTimer();
-
         void cancel(TimeoutType type);
-
         void cancelAll();
 private:
-    TimerId createTimer(
-        TimeoutType type,
-        TimePoint expire,
-        Timer::Callback cb
-    );
+        TimerId createTimer(
+            TimeoutType type,
+            TimePoint expire,
+            Timer::Callback cb
+        );
 
 private:
     EventLoop* loop_;
-    std::weak_ptr<TcpConnection> conn_;
-    std::array<
-        TimerId,
-        static_cast<size_t>(TimeoutType::Max)
-    > timers_;
+    std::weak_ptr<TcpConnection> conn_;//监控Tcp
+    std::array<TimerId,static_cast<size_t>(TimeoutType::Max)> timers_;
 };

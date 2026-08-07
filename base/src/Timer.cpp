@@ -55,8 +55,7 @@ void TimerQueue::handleExpired()
     auto now = Clock::now();
     while(!timers_.empty())
     {
-        auto timer = timers_.top();
-
+        auto timer = timers_.top();//查看堆顶元素
         // 删除空指针
         if(!timer)
         {
@@ -68,13 +67,12 @@ void TimerQueue::handleExpired()
         {
             break;
         }
-        timers_.pop();
+        timers_.pop();//到期后移除
         if(!timer->canceled())
         {
             timer->run();
         }
     }
-
 }
 TimePoint TimerQueue::getNextExpire()
 {
