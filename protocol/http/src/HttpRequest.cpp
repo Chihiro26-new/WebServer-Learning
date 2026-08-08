@@ -30,12 +30,12 @@ void HttpRequest::setBody(const std::string&body)
 }
 void HttpRequest::addHeader(const std::string& key,const std::string& value)
 {
-     std::cout 
-        << "header: "
-        << key 
-        << "="
-        << value
-        << std::endl;
+    //  std::cout 
+    //     << "header: "
+    //     << key 
+    //     << "="
+    //     << value
+    //     << std::endl;
     headers_[key] = value;
 }
 const std::string&HttpRequest::method() const

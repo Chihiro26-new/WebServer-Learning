@@ -3,10 +3,16 @@
 #include "HttpResponse.h"
 #include "TcpConnection.h"
 #include <iostream>
-HttpHandler::HttpHandler()
+#include "StaticFileHandler.h"
+
+
+HttpHandler::~HttpHandler(){};
+HttpHandler::HttpHandler(std::shared_ptr<StaticFileHandler> handler)
+        : fileHandler_(std::move(handler))
 {
+
 }
- HttpHandler::~HttpHandler(){};
+
 
 void HttpHandler::onConnection(
     TcpConnectionPtr conn)
@@ -46,29 +52,28 @@ void HttpHandler::onMessage(
         if(context->gotAll())
         {
             auto& request =context->request();
-            // std::cout<< request.method()<< std::endl;
-            // std::cout
-            //             << "path = "
-            //             << request.path()
-            //             << std::endl;
-
             HttpResponse response;
+              // 静态文件交给StaticFileHandler
+            fileHandler_->handle(
+                request,
+                response
+            );
 
-            response.setStatusCode(200);
-            response.addHeader("Content-Type","text/plain");
-            response.setBody("hello");
             if(!request.keepAlive())
             {
-                std::cout<<"close after write"<<std::endl;
+                std::cout 
+                    << "close after write"
+                    << std::endl;
+
                 response.setCloseConnection(true);
+
                 conn->startDisconnect();
             }
-                conn->sendMsg(response.toString());
-                context->reset();
-                // std::cout 
-                // << "remain bytes="
-                // << buffer.readableBytes()
-                // << std::endl;
+
+            conn->sendMsg(
+                response.toString()
+            );
+            context->reset();
             }
         else
             break;

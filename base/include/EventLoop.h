@@ -2,7 +2,8 @@
 #include "Epoll.h"
 #include "Timer.h"
 #include "TimerId.h"
-class EventLoop
+#include "noncopyable.h"
+class EventLoop :public noncopyable
 {
 public:
     EventLoop();

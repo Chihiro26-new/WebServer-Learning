@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <iostream>
+#include <stdio.h>
 const int LISTENQ=2048; 
 Socket::Socket(int fd):fd_(fd){}
 Socket::~Socket()

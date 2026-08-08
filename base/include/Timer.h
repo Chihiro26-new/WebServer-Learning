@@ -11,6 +11,7 @@ class Timer
 public:
     using Callback = std::function<void()>;
     Timer(TimePoint expireTime, Callback cb);
+    ~Timer();
     bool isExpired(TimePoint now) const;
     void run();
     TimePoint  expireTime() const;

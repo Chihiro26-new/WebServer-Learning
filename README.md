@@ -203,9 +203,6 @@ Run:
 
 后续计划：
 
-* [ ] 完善 HTTP 协议
-* [ ] Keep-Alive 长连接支持
-* [ ] Timer cancel / reset
 * [ ] EventLoopThreadPool 多线程模型
 * [ ] Reactor 多线程架构
 * [ ] 压力测试与性能优化

@@ -1,6 +1,6 @@
 #include "HttpContext.h"
 #include "Buffer.h"
-#include <iostream>
+#include "HttpParser.h"
 HttpContext::HttpContext():state_(RequestLine){}
 HttpContext::~HttpContext(){}
 bool HttpContext::gotAll()const
@@ -29,115 +29,75 @@ bool HttpContext::parseRequest(Buffer& buffer)
         //     << buffer.readableBytes()
         //     << std::endl;
         ParseResult result;
-        switch(state_)
+        switch (state_)
         {
-        case RequestLine:
-        {
-            // std::cout<<"parse request line"<<std::endl;
-            result =
-                parser_.parseRequestLine(
-                    buffer,
-                    request_);
-
-            if(result == ParseResult::Done)
+            case RequestLine:
             {
-                state_ = Headers;
-                continue;
-            }
+                result=parser_.parseRequestLine(buffer
+                    ,request_);
+                //      std::cout
+                //     << "method: "
+                //     << request_.method()
+                //     << std::endl;
 
-            if(result == ParseResult::NeedMoreData)
-            {
-                // std::cout 
-                // << "need more data"
-                // << std::endl;
-                return false;
-            }
+                // std::cout
+                //     << "path: "
+                //     << request_.path()
+                //     << std::endl;
 
-
-            if(result == ParseResult::Error)
-            {
-                // std::cout 
-                // << "parse error"
-                // << std::endl;
-
-                return false;
-            }
-
-            break;
-        }
-        case Headers:
-        {
-            // std::cout<<"parse headers"<<std::endl;
-            result =
-                parser_.parseHeader(
-                    buffer,
-                    request_);
-
-
-            if(result == ParseResult::Done)
-            {
-                if(request_.hasBody())
+                // std::cout
+                //     << "version: "
+                //     << request_.version()
+                //     << std::endl;
+                if(result==ParseResult::Done)
                 {
-                    state_ = Body;
+                    state_=Headers;
+                    continue;
                 }
-                else
+                if(result==ParseResult::Continue)
+                    continue;
+                if(result==ParseResult::NeedMoreData)
+                    return false;
+                if(result == ParseResult::Error)
+                    return false;
+                break;
+            }
+
+            case Headers:
+            {
+                result=parser_.parseHeader(buffer,request_);
+                if(result==ParseResult::Done)
                 {
-                    state_ = Finish;
+                    if(request_.hasBody())
+                        state_ = Body;
+                    else
+                        state_ = Finish;
+                    continue;
                 }
-                continue;
+                if(result==ParseResult::Continue)
+                    continue;
+                if(result==ParseResult::NeedMoreData)
+                    return false;
+                if(result==ParseResult::Error)
+                    return false;
+                break;
             }
-
-
-            if(result == ParseResult::Continue)
+            case Body:
             {
-                // 还有header，继续解析
-                continue;
+                result=parser_.parseBody(buffer,request_);
+                if(result==ParseResult::Done)
+                {
+                    state_=Finish;
+                    continue;
+                }
+                if(result == ParseResult::NeedMoreData)
+                    return false;
+                if(result == ParseResult::Error)
+                    return false;
+                break;
             }
-
-
-            if(result == ParseResult::NeedMoreData)
-            {
-                return false;
-            }
-
-
-            if(result == ParseResult::Error)
-            {
-                return false;
-            }
-
-            break;
-        }
-
-        case Body:
-        {
-            // std::cout<<"parse body"<<std::endl;
-            result =
-                parser_.parseBody(
-                    buffer,
-                    request_);
-
-            if(result == ParseResult::Done)
-            {
-                state_=Finish;
-                continue;
-            }
-
-            if(result == ParseResult::NeedMoreData)
-            {
-                return false;
-            }
-
-            if(result == ParseResult::Error)
-            {
-                return false;
-            }
-
-            break;
-        }
-
-        case Finish:
-            return true;
-        }
+            case Finish:
+                return true;
+       }
     }
 }

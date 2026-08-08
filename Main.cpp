@@ -9,26 +9,14 @@
 int main(int argc,char *argv[])
 {
     handle_for_sigpipe();
-    auto echoHandler = std::make_shared<EchoHandler>();
-    // auto httpHandler = std::make_shared<HttpHandler>();
+    // auto echoHandler = std::make_shared<EchoHandler>();
+    auto fileHandler =
+    std::make_shared<StaticFileHandler>("./www");
+
+    auto httpHandler = std::make_shared<HttpHandler>(fileHandler);
     // auto redisHandler = std::make_shared<RedisHandler>();
     EventLoop loop;
-    // loop.addTimer(
-    //     Clock::now() + std::chrono::seconds(10),
-    //     []()
-    //     {
-    //         std::cout<<"Timer1 callback!\n";
-    //     }
-    // );
-
-    // loop.addTimer(
-    //     Clock::now() + std::chrono::seconds(3),
-    //     []()
-    //     {
-    //         std::cout<<"Timer callback!\n";
-    //     }
-    // );
-    Server my_server(&loop,8080,echoHandler);
+    Server my_server(&loop,8080,httpHandler);
     loop.loop();
     return 0;
 }

@@ -12,12 +12,10 @@ ParseResult HttpParser::parseRequestLine(
         return ParseResult::NeedMoreData;
     }
 
-
     if(splitRequestLine(line,request))
     {
         return ParseResult::Done;
     }
-
 
     return ParseResult::Error;
 }
@@ -71,8 +69,7 @@ ParseResult HttpParser::parseBody(
     {
         return ParseResult::Done;
     }
-    std::string body =
-        buffer.retrieveAllAsString();
+    std::string body =buffer.retrieveAllAsString();
     request.setBody(body);
     return ParseResult::Done;
 }
@@ -149,20 +146,17 @@ bool HttpParser::splitRequestLine(
 }
 
 
-bool HttpParser::splitHeader(
-        const std::string& line,
-        HttpRequest& request)
+bool HttpParser::splitHeader(const std::string& line,
+    HttpRequest& request)
 {
-    auto pos =
-        line.find(':');
+    auto pos =line.find(':');
     if(pos==std::string::npos)
     {
         return false;
     }
-    std::string key =
-        line.substr(0,pos);
-    std::string value =
-        line.substr(pos+1);
+    std::string key =line.substr(0,
+        pos);
+    std::string value =line.substr(pos+1);
 
     // 去掉value前面的空格
     while(!value.empty()
@@ -170,9 +164,7 @@ bool HttpParser::splitHeader(
     {
         value.erase(value.begin());
     }
-
-    request.addHeader(
-        key,
+    request.addHeader(key,
         value);
     return true;
 }

@@ -25,6 +25,5 @@ private:
     std::string path_;
     std::string version_;
     std::unordered_map<std::string,std::string> headers_;
-    // std::map<std::string, std::string>headers_;
     std::string body_;
 };

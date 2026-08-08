@@ -5,7 +5,15 @@ Timer::Timer(TimePoint expireTime,Callback cb):
     expireTime_(expireTime),
     callback_(std::move(cb))
 {
-    std::cout<<"Timer create\n";
+    // std::cout 
+    //     << this
+    //     << std::endl;
+}
+Timer::~Timer()
+{
+    //   std::cout 
+    //     << this
+    //     << std::endl;
 }
 bool Timer::isExpired(TimePoint now)const
 {
