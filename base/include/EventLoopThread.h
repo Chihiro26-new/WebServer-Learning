@@ -2,7 +2,6 @@
 #include "Thread.h"
 #include "noncopyable.h"
 #include <condition_variable>
-#include <functional>
 #include <mutex>
 class EventLoop;
 class EventLoopThread:public noncopyable

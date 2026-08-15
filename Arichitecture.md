@@ -83,11 +83,31 @@ Tcp层不负责:
 业务逻辑处理；
 
 # 5.EventLoopThread模块
-主线程调用EventLoop*loop=eventLoopThread.startLoop();创建并启动一个工作线程，
-eventfd作为存在于内核的计数器，初始值为0，eventfd counter=0,处于不可读状态,epoll_wait()线程睡眠，而另一个线程write进该fd后，counter=1,可读，epoll发现EPOLLIN，epoll_wait()返回，唤醒，被唤醒后的线程进行handleRead将通知消费
+EventLoopThread 用于创建并管理一个独立线程，并在该线程中创建和运行 EventLoop
+主线程调用
+EventLoop*loop=eventLoopThread.startLoop()
+启动工作线程。工作线程创建 EventLoop 后，通过条件变量通知主线程，使startLoop()返回对应的 EventLoop指针。
+
+eventfd 在内核中维护一个 64 位计数器，初始值为0
+EventLoop 为该eventfd创建专属wakeupChannel_,并将其注册到自己的Epoll中，监听EPOLLIN事件。
+当其他线程需要唤醒该EventLoop时，通过wakeup() 向 wakeupFd_写入一个 64 位整数：
+wakeupChannel_ 的读回调调用 handleRead()，读取 eventfd 的计数值，从而消费此次唤醒通知。
+因此，eventfd 在本项目中主要承担跨线程唤醒通知的作用，而不是传递具体业务数据。
 
 
+在此基础上，EventLoop 提供：
+void runInLoop(Functor cb);
+void queueInLoop(Functor cb);
 
+runInLoop() 判断当前线程是否为 EventLoop 所属线程；
+如果是，则直接执行任务；
+如果不是，则将任务加入pendingFunctors_，并通过 wakeup() 唤醒 EventLoop。
+任务队列由 std::mutex 保护,pendingFunctors_ 负责保存实际需要执行的任务。EventLoop 使用 pendingFunctors_ 保存其他线程投递的任务。EventLoop 被 eventfd 唤醒后，通过 doPendingFunctors() 取出并执行这些任务。将 pendingFunctors_ 中当前已有的任务一次性转移到局部变量 functors 中，然后立即释放互斥锁。
+使用 swap() 可以避免逐个复制或移动任务，并且使共享的 pendingFunctors_ 快速恢复为空队列。
+任务执行不持有 mutex_，因此其他线程可以在任务执行期间继续调用 queueInLoop()，向新的 pendingFunctors_ 中添加任务。
+
+std::unique_ptr<Channel> wakeupChannel_;
+每个 EventLoop 拥有独立的 wakeupFd_ 和 wakeupChannel_，因此其他线程可以通过目标 EventLoop 的 wakeup()对指定 EventLoop 进行唤醒。
 
 
 

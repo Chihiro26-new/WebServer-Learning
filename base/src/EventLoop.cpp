@@ -126,7 +126,8 @@ void EventLoop::quit()
 {
     std::cout << "quit called\n";
     quit_ = true;
-    wakeup();
+    if(!isInLoopThread())
+        wakeup();
 }
 void EventLoop::handleRead()
 {
@@ -163,7 +164,20 @@ void EventLoop::wakeup()
     }
 }
 
+void EventLoop::doPendingFunctors()
+{
+    std::vector<Functor> functors;
 
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        functors.swap(pendingFunctors_);
+    }
+
+    for (auto& cb : functors)
+    {
+        cb();
+    }
+}
 
 void EventLoop::removeChannel(Channel*channel){epoll_.remove(channel);};
 void EventLoop::addChannel(Channel* channel){epoll_.add(channel);};

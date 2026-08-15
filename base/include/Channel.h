@@ -35,7 +35,8 @@ public:
     void enableWriting();/*可写开关*/
     void enableReading();/*可读开关*/
     void disableWriting();
-
+    void disableReading();
+    void disableAll();
     void setRevents(uint32_t events);
     void setEvents(uint32_t events);
 

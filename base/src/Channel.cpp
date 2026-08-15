@@ -69,6 +69,14 @@ void Channel::disableWriting()
     events_ &= ~EPOLLOUT;
 }
 
+void Channel::disableReading()
+{
+    events_&=~EPOLLIN;
+}
+void Channel::disableAll()
+{
+    events_=0;
+}
 void Channel::setRevents(uint32_t events)
 {
     revents_ = events;
