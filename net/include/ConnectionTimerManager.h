@@ -33,7 +33,7 @@ enum class TimeoutType
  *  3. 取消指定类型定时器
  *  4. 管理连接生命周期相关超时逻辑
  *
- * TcpConnection本身只关注连接状态和IO处理，
+ * TcpConnection本身只关注连接状态和IO处理
  * 定时器细节由该类封装。
  */
 class ConnectionTimerManager

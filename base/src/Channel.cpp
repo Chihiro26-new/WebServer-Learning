@@ -59,6 +59,10 @@ void Channel::enableWriting()
     //          <<events_
     //          <<std::endl;
 }
+void Channel::enableReading()
+{
+    events_|=EPOLLIN;
+}
 
 void Channel::disableWriting()
 {

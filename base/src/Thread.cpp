@@ -7,7 +7,6 @@ Thread::Thread(
     : thread_()
     , func_(std::move(func))
     , name_(name)
-    , joined_(false)
     , tid_()
     , started_(false)
 {
@@ -30,14 +29,14 @@ void Thread::start()
         );
     }
 
-    started_ = true;
-
     thread_ = std::thread(
         [this]()
         {
+            tid_ = std::this_thread::get_id();
             func_();
         }
     );
+    started_ = true;
 }
 void Thread::join()
 {
@@ -48,8 +47,17 @@ void Thread::join()
 }
 
 
-
 bool Thread::started() const
 {
     return started_;
+}
+
+std::thread::id Thread::tid() const
+{
+    return tid_;
+}
+
+const std::string& Thread::name() const
+{
+    return name_;
 }

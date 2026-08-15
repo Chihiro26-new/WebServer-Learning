@@ -26,7 +26,6 @@ TimerId ConnectionTimerManager::createTimer(
         [this,index,cb]()
         {
             timers_[index] = TimerId();
-
             cb();
         }
     );
@@ -115,11 +114,9 @@ void ConnectionTimerManager::cancel(
     auto& timer =
         timers_[index];
 
-
     if(timer.valid())
     {
         loop_->cancelTimer(timer);
-
         timer = TimerId();
     }
 }

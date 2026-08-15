@@ -8,7 +8,7 @@ Epoll负责IO多路复用
 Channel负责事件与回调绑定
 TcpConnection管理Tcp生命周期
 
-1.Epoll模块
+# 1.Epoll模块
 Epoll模块负责对Linux epoll API进行封装，提供事件注册、修改以及删除接口。
 该模块内部维护自身的epollFd_ 文件描述符，用于管理内核 epoll实例。
 Epoll层封装成员，需要自身的epoll文件，以及用于返回单次检查epoll_wait所活跃的全部channel事件，用vector<channel*>存储，因为事件的产生并不由epoll层发生，只需返回相关地址信息供与
@@ -17,7 +17,7 @@ Eventloop资源调度处理层面即可，而unordered_map<int,channel*> channel
 Epoll 不负责管理 Channel 生命周期，仅保存用于事件索引的裸指针，Channel的生命周期由上层对象负责。
 
 
-2.EventLoop模块
+# 2.EventLoop模块
 EventLoop作为 Reactor 模型中的核心事件调度层，负责协调不同类型事件资源的处理。
 其内部主要依赖：
 Epoll：负责IO事件检测；
@@ -41,7 +41,7 @@ EventLoop通过不断循环：
 获取最近到期的Timer，计算IO等待时间，调用Epoll等待活跃事件，分发Channel事件以及处理到期的定时任务，实现IO事件与定时任务的统一调度。
 
 
-3.Channel模块
+# 3.Channel模块
 Channel是Reactor模型中的事件通道封装，负责管理一个文件描述符fd以及该fd关注的事件，并负责将底层I/O事件分发给对应的回调函数。
 Channel内部维护一个指向所属EventLoop的指针，用于表示当前Channel由哪个事件循环管理，成员变量fd_表示该Channel所封装的文件描述符。
 close_用于记录Channel当前是否处于关闭状态，避免在关闭后的Channel上继续进行事件注册，修改等操作。
@@ -61,7 +61,7 @@ Channel不负责：
 不负责线程调度和任务执行。
 具体的数据处理由上层对象（例如TcpConnection完成，EventLoop负责事件循环调度，而Epoll负责底层事件监听。
 
-4.TcpConnection模块
+# 4.TcpConnection模块
 Tcp层是服务器端对客户端连接的抽象封装，负责管理一次Tcp连接的完整生命周期，可理解为两端之间的一条双向通信管道，负责维护连接状态、数据收发以及事件处理。
 Tcp层内部包含用于实际网络通信的Socket对象，以及负责事件通知与分发的唯一Channel,其中Socket负责底层fd的资源管理，而Channel负责反馈信息，将fd的I/O事件交由EventLoop调度处理。
 同时，Tcp层关联所属的EventLoop，表示该连接由某个事件循环负责调度执行，确保事件处理在对应的线程中完成。
@@ -82,8 +82,9 @@ Tcp层不负责:
 具体协议解析；
 业务逻辑处理；
 
-5.
-
+# 5.EventLoopThread模块
+主线程调用EventLoop*loop=eventLoopThread.startLoop();创建并启动一个工作线程，
+eventfd作为存在于内核的计数器，初始值为0，eventfd counter=0,处于不可读状态,epoll_wait()线程睡眠，而另一个线程write进该fd后，counter=1,可读，epoll发现EPOLLIN，epoll_wait()返回，唤醒，被唤醒后的线程进行handleRead将通知消费
 
 
 

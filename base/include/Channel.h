@@ -33,6 +33,7 @@ public:
     void updateLastEvents();/*更新lastevents_*/
 
     void enableWriting();/*可写开关*/
+    void enableReading();/*可读开关*/
     void disableWriting();
 
     void setRevents(uint32_t events);
