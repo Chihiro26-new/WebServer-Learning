@@ -41,16 +41,23 @@ EventLoop* EventLoopThread::startLoop()
     }
     return loop_;
 }
-
+void EventLoopThread::join()
+{
+    thread_.join();
+}
 void EventLoopThread::threadFunc()
 {
-    std::cout << "EventLoopThread: thread started\n";
+    // std::cout << "EventLoopThread: thread started\n";
     EventLoop loop;
     {
         std::lock_guard<std::mutex>lock(mutex_);
         loop_=&loop;
     }
     cond_.notify_one();
-    std::cout << "EventLoopThread: loop start\n";
+    // std::cout << "EventLoopThread: loop start\n";
     loop.loop();
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        loop_ = nullptr;
+    }
 }

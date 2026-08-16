@@ -197,6 +197,12 @@ void TcpConnection::handleConn()
 
 void TcpConnection::connectEstablished()
 {
+    std::cout
+    << "connectEstablished fd="
+    << socket_.getfd()
+    << " thread="
+    << std::this_thread::get_id()
+    << std::endl;
     timerManager_.setConnection(
         shared_from_this()
     );

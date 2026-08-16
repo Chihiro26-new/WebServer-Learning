@@ -1,28 +1,29 @@
 #include "Server.h"
 #include "Acceptor.h"
-#include "ProtocolHandler.h"
 #include "TcpConnection.h"
 #include "EventLoop.h"
-Server::Server(EventLoop* loop,int port,std::shared_ptr<ProtocolHandler> handler)
-    :loop_(loop),
-     acceptor_(std::make_unique<Acceptor>(loop,port))
-    ,handler_(handler)
+#include "WorkerPool.h"
+Server::Server(
+    EventLoop* loop,
+    WorkerPool* workerPool,
+    int port
+)
+    : loop_(loop)
+    , workerPool_(workerPool)
+    , acceptor_(std::make_unique<Acceptor>(
+          loop_,
+          port
+      ))
 {
-    //server调用callback设置tcp通信socket
-    acceptor_->setNewConnectionCallback([this](int fd){newConnection(fd);});
+    acceptor_->setNewConnectionCallback(
+        [this](int fd)
+        {
+            newConnection(fd);
+        }
+    );
 }
 Server::~Server() = default;
 void Server::newConnection(int fd)
 {
-    auto conn =std::make_shared<TcpConnection>(loop_,fd);
-    conn->setProtocolHandler(handler_);
-    conn->setCloseCallback([this](auto fd){removeConnection(fd);});
-    connections_[fd] = conn;
-    conn->connectEstablished();
+    workerPool_->dispatch(fd);
 }
-void Server::removeConnection(int fd)
-{
-    // std::cout << "remove connection fd = " << fd << std::endl;
-    connections_.erase(fd);
-}
-

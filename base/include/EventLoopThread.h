@@ -11,6 +11,7 @@ public:
     ~EventLoopThread();
     // 启动线程，并返回该线程中的 EventLoop
     EventLoop* startLoop();
+    void join();
 private:
     void threadFunc();
     EventLoop* loop_;

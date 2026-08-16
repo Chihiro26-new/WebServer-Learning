@@ -100,7 +100,7 @@ TimerId EventLoop::addTimer(TimePoint expire,Timer::Callback cb)
 }
 void EventLoop::loop()
 {
-    while(true)
+    while(!quit_)
     {
         auto expire = timerQueue_.getNextExpire();
         int timeout = getTimeout(expire);
@@ -119,6 +119,7 @@ void EventLoop::loop()
             }
         }
         timerQueue_.handleExpired();
+        doPendingFunctors();
     }
 }
 
@@ -138,11 +139,11 @@ void EventLoop::handleRead()
         &one,
         sizeof(one)
     );
-     std::cout << "wakeup read: "
-              << n
-              << ", value = "
-              << one
-              << std::endl;
+    //  std::cout << "wakeup read: "
+    //           << n
+    //           << ", value = "
+    //           << one
+    //           << std::endl;
     if (n != sizeof(one))
     {
         perror("EventLoop::handleRead");
@@ -157,7 +158,6 @@ void EventLoop::wakeup()
         &one,
         sizeof(one)
     );
-    std::cout << "wakeup write = " << n << std::endl;
     if(n != sizeof(one))
     {
         perror("EventLoop::wakeup");
@@ -167,7 +167,6 @@ void EventLoop::wakeup()
 void EventLoop::doPendingFunctors()
 {
     std::vector<Functor> functors;
-
     {
         std::lock_guard<std::mutex> lock(mutex_);
         functors.swap(pendingFunctors_);
