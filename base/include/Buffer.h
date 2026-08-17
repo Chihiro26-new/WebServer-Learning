@@ -35,7 +35,6 @@
 class Buffer
 {
 public:
-
     static const size_t kCheapPrepend = 8;// 预留在数据前的空间,向数据头部添加内容
     static const size_t kInitialSize = 1024;//Buffer默认初始容量
     explicit Buffer(size_t initialSize = kInitialSize);

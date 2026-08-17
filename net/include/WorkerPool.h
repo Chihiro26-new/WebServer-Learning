@@ -16,7 +16,7 @@ public:
 
     // 启动所有 Worker
     void start();
-    void shutdown();
+    void shutdown();//关闭所有线程并阻塞
 
     // 将 fd 分发给下一个 Worker
     void dispatch(int fd);

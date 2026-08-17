@@ -29,7 +29,6 @@ void WorkerPool::start()
         return;
 
     started_ = true;
-
     for (auto& worker : workers_)
     {
         worker->start();

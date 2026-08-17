@@ -1,8 +1,9 @@
 #include "Server.h"
 #include "HttpHandler.h"
 #include "EchoHandler.h"
-#include "RedisHandler.h"
-#include <iostream>
+// #include "RedisHandler.h"
+// #include <iostream>
+#include <memory>
 #include "EventLoop.h"
 #include "Util.h"
 #include "WorkerPool.h"
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 
     auto httpHandler =
         std::make_shared<HttpHandler>(fileHandler);
-
+    auto echoHandler=std::make_shared<EchoHandler>();
     EventLoop mainLoop;
     WorkerPool workerPool(
         4,

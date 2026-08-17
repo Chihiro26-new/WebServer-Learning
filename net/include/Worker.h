@@ -1,9 +1,7 @@
 #pragma once
 #include "EventLoopThread.h"
-
 class TcpConnection;
 class ProtocolHandler;
-class EventLoop;
 class Worker : noncopyable
 {
 public:

@@ -1,7 +1,7 @@
 #include "Worker.h"
 #include "EventLoop.h"
 #include "TcpConnection.h"
-#include <iostream>
+// #include <iostream>
 Worker::Worker(
     std::shared_ptr<ProtocolHandler> handler
 )
@@ -30,12 +30,12 @@ void Worker::addConnection(int fd)
     loop_->runInLoop(
         [this, fd]()
         {
-            std::cout
-                << "[Worker] add fd = "
-                << fd
-                << ", thread = "
-                << std::this_thread::get_id()
-                << std::endl;
+            // std::cout
+            //     << "[Worker] add fd = "
+            //     << fd
+            //     << ", thread = "
+            //     << std::this_thread::get_id()
+            //     << std::endl;
             auto conn =
                 std::make_shared<TcpConnection>(
                     loop_,
