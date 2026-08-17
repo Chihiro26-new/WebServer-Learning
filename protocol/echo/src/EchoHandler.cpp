@@ -5,14 +5,14 @@ void EchoHandler::onMessage(TcpConnectionPtr conn)
 {
     auto& buffer=conn->getInputBuffer();
     std::string msg = buffer.retrieveAllAsString();
-    std::cout<<"size :"<<msg.size()<<std::endl;
-    std::cout << "echo recv: "<< msg<< std::endl;
+    // std::cout<<"size :"<<msg.size()<<std::endl;
+    // std::cout << "echo recv: "<< msg<< std::endl;
     conn->sendMsg(msg);
 }
 
 void EchoHandler::onClose(TcpConnectionPtr conn)
 {
-    std::cout<<"Echo close\n";
+    
 }
 void EchoHandler::onConnection(TcpConnectionPtr conn)
 {

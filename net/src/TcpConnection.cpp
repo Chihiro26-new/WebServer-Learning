@@ -187,22 +187,22 @@ void TcpConnection::handleError()
         &err,
         &len
     );
-    std::cerr << "socket error: "<< strerror(err)<< std::endl;
+    // std::cerr << "socket error: "<< strerror(err)<< std::endl;
     forceClose(CloseReason::Error);
 }
 void TcpConnection::handleConn()
 {
-    std::cout<<"channal connection established"<<std::endl;
+    // std::cout<<"channal connection established"<<std::endl;
 }
 
 void TcpConnection::connectEstablished()
 {
-    std::cout
-    << "connectEstablished fd="
-    << socket_.getfd()
-    << " thread="
-    << std::this_thread::get_id()
-    << std::endl;
+    // std::cout
+    // << "connectEstablished fd="
+    // << socket_.getfd()
+    // << " thread="
+    // << std::this_thread::get_id()
+    // << std::endl;
     timerManager_.setConnection(
         shared_from_this()
     );

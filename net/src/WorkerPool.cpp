@@ -1,19 +1,22 @@
 #include "Worker.h"
-#include "ProtocolHandler.h"
 #include "WorkerPool.h"
 WorkerPool::WorkerPool(
     int numWorkers,
-    std::shared_ptr<ProtocolHandler> handler
+    HandlerFactory factory
 )
-    : next_(0)
-    , started_(false)
+    : next_(0),
+      started_(false)
 {
     workers_.reserve(numWorkers);
 
-    for (int i = 0; i < numWorkers; ++i)
+    for(int i = 0; i < numWorkers; ++i)
     {
+        auto handler = factory();
+
         workers_.push_back(
-            std::make_unique<Worker>(handler)
+            std::make_unique<Worker>(
+                std::move(handler)
+            )
         );
     }
 }

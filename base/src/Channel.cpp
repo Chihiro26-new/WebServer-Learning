@@ -92,7 +92,7 @@ void Channel::handleEvents()
         // socket错误
         if (revents_ & EPOLLERR)
         {
-            std::cout<< "Channel handleEvents:Error\n";
+            // std::cout<< "Channel handleEvents:Error\n";
             if(errorHandler_)
                 errorHandler_();
             return;

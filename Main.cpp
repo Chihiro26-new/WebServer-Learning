@@ -2,33 +2,96 @@
 #include "HttpHandler.h"
 #include "EchoHandler.h"
 // #include "RedisHandler.h"
-// #include <iostream>
+#include <iostream>
 #include <memory>
 #include "EventLoop.h"
 #include "Util.h"
 #include "WorkerPool.h"
-#include "Worker.h"
 int main(int argc, char *argv[])
 {
     handle_for_sigpipe();
 
+    int port = 8080;
+    int workerNum = 4;
+
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+
+        if (arg == "-p")
+        {
+            if (i + 1 >= argc)
+            {
+                std::cerr << "Error: -p requires a port\n";
+                return 1;
+            }
+
+            port = std::stoi(argv[++i]);
+        }
+        else if (arg == "-t")
+        {
+            if (i + 1 >= argc)
+            {
+                std::cerr << "Error: -t requires a worker number\n";
+                return 1;
+            }
+
+            workerNum = std::stoi(argv[++i]);
+        }
+        else
+        {
+            std::cerr << "Unknown argument: " << arg << '\n';
+            return 1;
+        }
+    }
+
+    if (port <= 0 || port > 65535)
+    {
+        std::cerr << "Error: invalid port\n";
+        return 1;
+    }
+
+    if (workerNum <= 0)
+    {
+        std::cerr << "Error: invalid worker number\n";
+        return 1;
+    }
+
+    std::cout << "Server config:\n"
+              << "  port       = " << port << '\n'
+              << "  workerNum  = " << workerNum << '\n'
+              << "  main thread = " << std::this_thread::get_id()
+              << '\n';
+
     auto fileHandler =
         std::make_shared<StaticFileHandler>("./www");
 
-    auto httpHandler =
-        std::make_shared<HttpHandler>(fileHandler);
-    auto echoHandler=std::make_shared<EchoHandler>();
+   
+
+    auto echoHandler =
+        std::make_shared<EchoHandler>();
+
     EventLoop mainLoop;
+
     WorkerPool workerPool(
-        4,
-        httpHandler
+        6,
+        [fileHandler]()
+        {
+            return std::make_shared<HttpHandler>(
+                fileHandler
+            );
+        }
     );
+  
+
     workerPool.start();
+
     Server server(
         &mainLoop,
         &workerPool,
-        8080
+        port
     );
+
     mainLoop.loop();
 
     return 0;

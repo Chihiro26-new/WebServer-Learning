@@ -54,6 +54,7 @@ void EventLoop::runInLoop(Functor cb)
     }
     else
     {
+        // std::cout<<"thread id ="<<std::this_thread::get_id()<<std::endl;
         queueInLoop(std::move(cb));
     }
 }
@@ -63,11 +64,13 @@ void EventLoop::queueInLoop(Functor cb)
         std::lock_guard<std::mutex> lock(mutex_);
         pendingFunctors_.push_back(std::move(cb));
     }
+    // std::cout<<"push thread id ="<<std::this_thread::get_id()<<std::endl;
     wakeup();
 }
 
 bool EventLoop::isInLoopThread() const
 {
+    
     return std::this_thread::get_id() == threadId_;
 }
 
@@ -152,7 +155,7 @@ void EventLoop::handleRead()
 void EventLoop::wakeup()
 {
     uint64_t one = 1;
-    
+    //  std::cout<<"wakeup thread id ="<<std::this_thread::get_id()<<std::endl;
     ssize_t n = writeNBytes(
         wakeupFd_,
         &one,

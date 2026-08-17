@@ -28,7 +28,7 @@ private:
     Epoll epoll_;
     TimerQueue timerQueue_;//定时器
     int wakeupFd_;
-    std::unique_ptr<Channel>wakeupChannel_;
+    std::unique_ptr<Channel>wakeupChannel_;//唤醒eventloop
 
     std::mutex mutex_;
     std::vector<Functor> pendingFunctors_;
