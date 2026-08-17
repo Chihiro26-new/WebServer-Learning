@@ -39,6 +39,7 @@ public:
     Buffer& getOutputBuffer();
     void setProtocolHandler(std::shared_ptr<ProtocolHandler> handle);
     void sendMsg(const std::string&msg);
+    void enableOutput();
     void startDisconnect();
     void forceClose(CloseReason reason);
     void setCloseCallback(CloseCallback cb);//通知上层server关闭tcp流

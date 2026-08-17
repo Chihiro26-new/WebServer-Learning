@@ -2,6 +2,22 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <cstring>
+// static uint64_t totalAppendBytes = 0;
+// static uint64_t appendCount = 0;
+// static uint64_t resizeCount = 0;
+// uint64_t getAppendCount()
+// {
+//     return appendCount;
+// }
+
+// uint64_t getTotalAppendBytes()
+// {
+//     return totalAppendBytes;
+// }
+// uint64_t getResizeCount()
+// {
+//     return resizeCount;
+// }
 Buffer::Buffer(size_t initialSize)
 :
 buffer_(kCheapPrepend + initialSize),
@@ -41,6 +57,9 @@ void Buffer::append(
     const char* data,
     size_t len)
 {
+    // ++appendCount;
+    // totalAppendBytes += len;
+
     ensureWritable(len);
     std::copy(
         data,
@@ -54,6 +73,8 @@ const char* Buffer::peek() const
 {
     return begin() + readerIndex_;
 }
+
+
 void Buffer::append(const std::string& data)
 {
     append(data.data(), data.size());
@@ -85,6 +106,7 @@ void Buffer::makeSpace(size_t len)
     }
     else
     {
+        // ++resizeCount;
         buffer_.resize(
             writerIndex_+len
         );

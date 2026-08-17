@@ -1,6 +1,5 @@
 #include "HttpResponse.h"
-#include <sstream>
-
+#include "Buffer.h"
 HttpResponse::HttpResponse()
     :statusCode_(200),closeConnection_(false)
 {
@@ -31,31 +30,58 @@ bool HttpResponse::closeConnection() const
     return closeConnection_;
 }
 
+void HttpResponse::appendTo(Buffer& buffer) const
+{
+    buffer.append("HTTP/1.1 ");
+
+    buffer.append(
+        std::to_string(statusCode_)
+    );
+
+    buffer.append(" OK\r\n");
+    for (const auto& [key, value] : headers_)
+    {
+        buffer.append(key);
+        buffer.append(": ");
+        buffer.append(value);
+        buffer.append("\r\n");
+    }
+    buffer.append("Content-Length: ");
+
+    buffer.append(
+        std::to_string(body_.size())
+    );
+
+    buffer.append("\r\n");
+    buffer.append("\r\n");
+
+    buffer.append(body_);
+}
 std::string HttpResponse::toString() const
 {
-    std::stringstream ss;
-    // 状态行
-    ss<<"HTTP/1.1 "
-      <<statusCode_
-      <<" OK\r\n";
+    std::string result;
 
-    // header
-    for(auto& [key,value]:headers_)
+    result.reserve(256 + body_.size());
+
+    result += "HTTP/1.1 ";
+    result += std::to_string(statusCode_);
+    result += " OK\r\n";
+
+    for (const auto& [key, value] : headers_)
     {
-        ss<<key
-          <<": "
-          <<value
-          <<"\r\n";
+        result += key;
+        result += ": ";
+        result += value;
+        result += "\r\n";
     }
 
-    ss<<"Content-Length: "
-      <<body_.size()
-      <<"\r\n";
+    result += "Content-Length: ";
+    result += std::to_string(body_.size());
+    result += "\r\n";
 
+    result += "\r\n";
 
-    ss<<"\r\n";
-    // body
-    ss<<body_;
+    result += body_;
 
-    return ss.str();
+    return result;
 }

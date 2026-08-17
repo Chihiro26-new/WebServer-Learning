@@ -1,6 +1,7 @@
 #include "HttpParser.h"
-#include <sstream>
 #include "Buffer.h"
+#include <string>
+//#include <iostream>
 ParseResult HttpParser::parseRequestLine(
         Buffer& buffer,
         HttpRequest& request)
@@ -59,18 +60,35 @@ ParseResult HttpParser::parseBody(
         Buffer& buffer,
         HttpRequest& request)
 {
-
-    /*
-        简化版本：
-        不考虑Content-Length
-        直接把剩余数据当body
-    */
-    if(buffer.readableBytes()==0)
+    auto it = request.headers().find("Content-Length");
+    size_t contentLength=0;
+    if (it != request.headers().end())
     {
-        return ParseResult::Done;
+        try
+        {
+            contentLength = std::stoull(it->second);
+        }
+        catch (...)
+        {
+            return ParseResult::Error;
+        }
     }
-    std::string body =buffer.retrieveAllAsString();
-    request.setBody(body);
+    // std::cout << "Content-Length = "
+    //       << contentLength
+    //       << ", readable = "
+    //       << buffer.readableBytes()
+    //       << std::endl;
+    if (buffer.readableBytes() < contentLength)
+    {
+        return ParseResult::NeedMoreData;
+    }
+    std::string body(
+        buffer.peek(),
+        contentLength
+    );
+    // std::cout << "Body = " << body << std::endl;
+    buffer.retrieve(contentLength);
+    request.setBody(std::move(body));
     return ParseResult::Done;
 }
 
@@ -101,70 +119,79 @@ bool HttpParser::getLine(
 
 
 bool HttpParser::splitRequestLine(
-        const std::string& line,
-        HttpRequest& request)
+    const std::string& line,
+    HttpRequest& request)
 {
-    //  std::cout
-    //     << "request line = ["
-    //     << line
-    //     << "]"
-    //     << std::endl;
+    // GET /index.html HTTP/1.1
+    //
+    //        p1       p2
+    //        ↓        ↓
+    // GET /index.html HTTP/1.1
 
-    std::istringstream iss(line);
-
-    std::string method;
-    std::string path;
-    std::string version;
-    iss >> method
-        >> path
-        >> version;
-
-    // std::cout
-    //     << "method=["
-    //     << method
-    //     << "] "
-    //     << "path=["
-    //     << path
-    //     << "] "
-    //     << "version=["
-    //     << version
-    //     << "]"
-    //     << std::endl;
-  
-    if(method.empty() ||
-       path.empty() ||
-       version.empty())
+    const size_t p1 = line.find(' ');
+    if (p1 == std::string::npos || p1 == 0)
     {
         return false;
     }
 
-    request.setMethod(method);
-    request.setPath(path);
-    request.setVersion(version);
+    const size_t p2 = line.find(' ', p1 + 1);
+    if (p2 == std::string::npos || p2 == p1 + 1)
+    {
+        return false;
+    }
 
+    // version 不能为空
+    if (p2 + 1 >= line.size())
+    {
+        return false;
+    }
+    request.setMethod(
+        line.substr(0, p1)
+    );
+
+    request.setPath(
+        line.substr(
+            p1 + 1,
+            p2 - p1 - 1
+        )
+    );
+
+    request.setVersion(
+        line.substr(p2 + 1)
+    );
+    //   std::cout
+    // << request.getMethod()
+    // << " "
+    // << request.getPath()
+    // << std::endl;
     return true;
 }
 
 
-bool HttpParser::splitHeader(const std::string& line,
+bool HttpParser::splitHeader(
+    const std::string& line,
     HttpRequest& request)
 {
-    auto pos =line.find(':');
-    if(pos==std::string::npos)
+    auto pos = line.find(':');
+
+    if (pos == std::string::npos)
     {
         return false;
     }
-    std::string key =line.substr(0,
-        pos);
-    std::string value =line.substr(pos+1);
 
-    // 去掉value前面的空格
-    while(!value.empty()
-          && value[0]==' ')
+    size_t valueStart = pos + 1;
+
+    // 跳过 value 前面的空格
+    while (valueStart < line.size() &&
+           line[valueStart] == ' ')
     {
-        value.erase(value.begin());
+        ++valueStart;
     }
-    request.addHeader(key,
-        value);
+
+    std::string key = line.substr(0, pos);
+    std::string value = line.substr(valueStart);
+
+    request.addHeader(key, value);
+
     return true;
 }

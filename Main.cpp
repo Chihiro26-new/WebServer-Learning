@@ -7,6 +7,7 @@
 #include "EventLoop.h"
 #include "Util.h"
 #include "WorkerPool.h"
+// #include "Buffer.h"
 int main(int argc, char *argv[])
 {
     handle_for_sigpipe();
@@ -92,7 +93,27 @@ int main(int argc, char *argv[])
         port
     );
 
-    mainLoop.loop();
+//     std::thread statsThread([]
+// {
+//     std::this_thread::sleep_for(
+//         std::chrono::seconds(30)
+//     );
 
+//     std::cout
+//         << "\nappendCount = "
+//         << getAppendCount()
+//         << '\n';
+
+//     std::cout
+//         << "totalAppendBytes = "
+//         << getTotalAppendBytes()
+//         << '\n';
+//     std::cout
+//     << "resizeCount = "
+//     << getResizeCount()
+//     << '\n';
+// });
+    mainLoop.loop();
+    // statsThread.join();
     return 0;
 }

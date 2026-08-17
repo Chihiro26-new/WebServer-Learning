@@ -1,7 +1,6 @@
 #include "HttpRequest.h"
 HttpRequest::HttpRequest(){}
 HttpRequest::~HttpRequest(){}
-#include <iostream>
 void HttpRequest::reset()
 {
     method_.clear();
@@ -38,19 +37,19 @@ void HttpRequest::addHeader(const std::string& key,const std::string& value)
     //     << std::endl;
     headers_[key] = value;
 }
-const std::string&HttpRequest::method() const
+const std::string&HttpRequest::getMethod() const
 {
     return method_;
 }
-const std::string&HttpRequest::path()const
+const std::string&HttpRequest::getPath()const
 {
     return path_;
 }
-const std::string& HttpRequest::version() const
+const std::string& HttpRequest::getVersion() const
 {
     return version_;
 }
-const std::string& HttpRequest::body() const
+const std::string& HttpRequest::getBody() const
 {
     return body_;
 }
@@ -62,7 +61,10 @@ const std::string& HttpRequest::getHeader(const std::string&key)const
         return it->second;
     return empty;
 }
-
+ const std::unordered_map<std::string, std::string>& HttpRequest::headers() const
+{
+    return headers_;
+}
 bool HttpRequest::keepAlive()const
 {
     auto it = headers_.find("Connection");

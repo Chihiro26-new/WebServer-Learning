@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
 #include <string>
+// #include <cstdint>
+//  uint64_t getAppendCount();
+//  uint64_t getTotalAppendBytes();
+//  uint64_t getResizeCount();
 /**
  * TCP连接的用户态缓冲区
  *
@@ -36,8 +40,9 @@ class Buffer
 {
 public:
     static const size_t kCheapPrepend = 8;// 预留在数据前的空间,向数据头部添加内容
-    static const size_t kInitialSize = 1024;//Buffer默认初始容量
+    static const size_t kInitialSize = 8192;//Buffer默认初始容量
     explicit Buffer(size_t initialSize = kInitialSize);
+
 
     size_t readableBytes() const;// 可读数据
 

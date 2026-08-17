@@ -22,12 +22,6 @@ bool HttpContext::parseRequest(Buffer& buffer)
 {
     while(true)
     {
-        //  std::cout 
-        //     << "state = "
-        //     << state_
-        //     << " readable="
-        //     << buffer.readableBytes()
-        //     << std::endl;
         ParseResult result;
         switch (state_)
         {
@@ -35,20 +29,6 @@ bool HttpContext::parseRequest(Buffer& buffer)
             {
                 result=parser_.parseRequestLine(buffer
                     ,request_);
-                //      std::cout
-                //     << "method: "
-                //     << request_.method()
-                //     << std::endl;
-
-                // std::cout
-                //     << "path: "
-                //     << request_.path()
-                //     << std::endl;
-
-                // std::cout
-                //     << "version: "
-                //     << request_.version()
-                //     << std::endl;
                 if(result==ParseResult::Done)
                 {
                     state_=Headers;

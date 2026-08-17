@@ -16,10 +16,12 @@ public:
     const std::string& getHeader(const std::string&key)const;
     bool keepAlive() const;//判断长链接
     bool hasBody() const;
-    const std::string& method() const;
-    const std::string& path() const;
-    const std::string& version() const;
-    const std::string& body() const;
+    const std::string& getMethod() const;
+    const std::string& getPath() const;
+    const std::string& getVersion() const;
+    const std::string& getBody() const;
+    const std::unordered_map<std::string, std::string>& headers() const;
+
 private:
     std::string method_;
     std::string path_;

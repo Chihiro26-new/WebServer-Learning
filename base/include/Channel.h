@@ -5,7 +5,7 @@
 class EventLoop;
 class Channel
 {
-using CallBack = std::function<void()>;
+    using CallBack = std::function<void()>;
 public:
     // 创建一个 Channel
     // loop: 当前 Channel 所属的事件循环

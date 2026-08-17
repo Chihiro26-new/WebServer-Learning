@@ -40,10 +40,11 @@ void HttpHandler::onMessage(
     auto& buffer =conn->getInputBuffer();
     while(buffer.readableBytes()>0)
     {
-        bool ok =context->parseRequest(buffer);
-        // std::cout 
-        // << "parse finished"
+        // std::cout
+        // << "before parse, remain="
+        // << buffer.readableBytes()
         // << std::endl;
+        bool ok =context->parseRequest(buffer);
         if(!ok)
         {
             return;
@@ -70,11 +71,16 @@ void HttpHandler::onMessage(
                 conn->startDisconnect();
             }
 
-            conn->sendMsg(
-                response.toString()
-            );
+            auto& outputBuffer =
+            conn->getOutputBuffer();
+            response.appendTo(outputBuffer);
+            conn->enableOutput();
             context->reset();
-            }
+            //         std::cout
+            // << "after reset, remain="
+            // << buffer.readableBytes()
+            // << std::endl;
+        }
         else
             break;
     }

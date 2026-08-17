@@ -47,6 +47,10 @@ void TcpConnection::sendMsg(const std::string&msg)
     outputBuffer_.append(msg);
     channel_->enableWriting();
 }
+void TcpConnection::enableOutput()
+{
+    channel_->enableWriting();
+}
 void TcpConnection::startDisconnect()
 {
     if(state_!=ConnectionState::Connected)
