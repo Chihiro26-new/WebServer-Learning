@@ -2,22 +2,6 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <cstring>
-// static uint64_t totalAppendBytes = 0;
-// static uint64_t appendCount = 0;
-// static uint64_t resizeCount = 0;
-// uint64_t getAppendCount()
-// {
-//     return appendCount;
-// }
-
-// uint64_t getTotalAppendBytes()
-// {
-//     return totalAppendBytes;
-// }
-// uint64_t getResizeCount()
-// {
-//     return resizeCount;
-// }
 Buffer::Buffer(size_t initialSize)
 :
 buffer_(kCheapPrepend + initialSize),
@@ -41,17 +25,22 @@ size_t Buffer::prependableBytes() const
 
 void Buffer::shrink()
 {
-    std::vector<char> buf(kCheapPrepend + readableBytes());
+    size_t readable = readableBytes();
+
+    std::vector<char> buf(
+        kCheapPrepend + readable
+    );
+
     std::copy(
         begin()+readerIndex_,
         begin()+writerIndex_,
         buf.begin()+kCheapPrepend
     );
-    size_t readable = readableBytes();
-    buffer_.swap(buf);
-    readerIndex_=kCheapPrepend;
-    writerIndex_ = readerIndex_ + readable;
 
+    buffer_.swap(buf);
+
+    readerIndex_=kCheapPrepend;
+    writerIndex_=readerIndex_+readable;
 }
 void Buffer::append(
     const char* data,

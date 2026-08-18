@@ -1,11 +1,12 @@
 #include "EventLoop.h"
 #include "Channel.h"
+#include "Mutex.h"
 #include "Timer.h"
 #include "TimerId.h"
 #include <sys/eventfd.h>
 #include <stdexcept>
 #include "Util.h"
-#include <iostream>
+#include <unistd.h>
 #include <thread>
 #include <utility>
 static int createEventfd()
@@ -45,7 +46,13 @@ EventLoop::EventLoop()
     addChannel(wakeupChannel_.get());
 }
 
-EventLoop::~EventLoop(){}
+EventLoop::~EventLoop(){
+    if(wakeupFd_ >= 0)
+    {
+        close(wakeupFd_);
+        wakeupFd_ = -1;
+    }
+}
 void EventLoop::runInLoop(Functor cb)
 {
     if (isInLoopThread())
@@ -61,7 +68,7 @@ void EventLoop::runInLoop(Functor cb)
 void EventLoop::queueInLoop(Functor cb)
 {
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        LockGuard lock(mutex_);
         pendingFunctors_.push_back(std::move(cb));
     }
     // std::cout<<"push thread id ="<<std::this_thread::get_id()<<std::endl;
@@ -128,10 +135,16 @@ void EventLoop::loop()
 
 void EventLoop::quit()
 {
-    std::cout << "quit called\n";
-    quit_ = true;
-    if(!isInLoopThread())
-        wakeup();
+    if(isInLoopThread())
+    {
+        quit_=true;
+    }
+    else
+    {
+        queueInLoop([this](){
+            quit_=true;
+        });
+    }
 }
 void EventLoop::handleRead()
 {
@@ -171,7 +184,7 @@ void EventLoop::doPendingFunctors()
 {
     std::vector<Functor> functors;
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        LockGuard lock(mutex_);
         functors.swap(pendingFunctors_);
     }
 

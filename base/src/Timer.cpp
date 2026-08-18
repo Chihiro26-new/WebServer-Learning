@@ -51,7 +51,7 @@ TimerId TimerQueue::add(std::shared_ptr<Timer> timer)
     timers_.push(timer);
     return TimerId(timer);
 }
-void TimerQueue::cancel(TimerId timerId)
+void TimerQueue::cancel(const TimerId &timerId)
 {
     if(auto timer = timerId.timer_.lock())
     {
@@ -78,8 +78,9 @@ void TimerQueue::handleExpired()
         timers_.pop();//到期后移除
         if(!timer->canceled())
         {
-            timer->run();
+            continue;
         }
+        timer->run();
     }
 }
 TimePoint TimerQueue::getNextExpire()

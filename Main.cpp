@@ -60,9 +60,7 @@ int main(int argc, char *argv[])
 
     std::cout << "Server config:\n"
               << "  port       = " << port << '\n'
-              << "  workerNum  = " << workerNum << '\n'
-              << "  main thread = " << std::this_thread::get_id()
-              << '\n';
+              << "  workerNum  = " << workerNum << '\n';
 
     auto fileHandler =
         std::make_shared<StaticFileHandler>("./www");

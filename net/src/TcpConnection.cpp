@@ -5,9 +5,8 @@
 #include "Channel.h"
 #include "EventLoop.h"
 #include <sys/socket.h>
+#include <cassert>
 #include <iostream>
-#include <string.h>
-const int BUFSIZE=1024;
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
     :socket_(fd),loop_(loop),channel_(std::make_unique<Channel>(loop,fd))
     ,state_(ConnectionState::Connecting),closeReason_(CloseReason::None)
@@ -19,10 +18,20 @@ TcpConnection::TcpConnection(EventLoop*loop,int fd)
     channel_->setErrorHandler([this](){handleError();});
     channel_->setConnHandler([this](){handleConn();});
     loop_->addChannel(channel_.get());
+    // std::cout
+    //     <<"create fd="
+    //     <<fd
+    //     <<" this="
+    //     <<this
+    //     <<std::endl;
 }
 TcpConnection::~TcpConnection()
 {
-    
+    // std::cout
+    //     << "destroy this="
+    //     << this
+    //     << std::endl;
+    assert(state_ == ConnectionState::Disconnected);
 }
 
 Buffer& TcpConnection::getInputBuffer()
@@ -59,6 +68,14 @@ void TcpConnection::startDisconnect()
     }
     closeReason_=CloseReason::ServerClose;
     setState(ConnectionState::Disconnecting);
+    if(outputBuffer_.readableBytes()==0)
+    {
+        handleClose();
+    }
+    else
+    {
+        channel_->enableWriting();
+    }
     timerManager_.startCloseTimer();
 }
 
@@ -127,7 +144,11 @@ void TcpConnection::handleRead()
     }
 }
 
-
+void TcpConnection::shutdown()
+{
+    if(state_==ConnectionState::Disconnecting)
+        socket_.shutdownWrite();
+}
 void TcpConnection::handleWrite()
 {
      while(outputBuffer_.readableBytes()>0)
@@ -158,27 +179,35 @@ void TcpConnection::handleWrite()
     channel_->disableWriting();
     if(state_ == ConnectionState::Disconnecting)
     {
-        handleClose();
+        shutdown();
     }
 }
 
 void TcpConnection::handleClose()
 {
+    auto self = shared_from_this();
+
     if(state_ == ConnectionState::Disconnected)
-    {
         return;
-    }
-    // std::cout<<"Tcp connection close\n";
+
     setState(ConnectionState::Disconnected);
+
     if(handler_)
     {
-        handler_->onClose(shared_from_this());
+        handler_->onClose(self);
     }
+
     timerManager_.cancelAll();
+
+    channel_->disableAll();
     channel_->setClosed();
+
     loop_->removeChannel(channel_.get());
+
     if(closeCallback_)
+    {
         closeCallback_(socket_.getfd());
+    }
 }
 void TcpConnection::handleError()
 {
@@ -201,22 +230,20 @@ void TcpConnection::handleConn()
 
 void TcpConnection::connectEstablished()
 {
-    // std::cout
-    // << "connectEstablished fd="
-    // << socket_.getfd()
-    // << " thread="
-    // << std::this_thread::get_id()
-    // << std::endl;
-    timerManager_.setConnection(
-        shared_from_this()
-    );
+    auto self = shared_from_this();
+
+    // std::cout 
+    //     << "self ok\n";
+
+    timerManager_.setConnection(self);
+
     setState(ConnectionState::Connected);
+
     timerManager_.startIdleTimer();
+
     if(handler_)
     {
-        handler_->onConnection(
-            shared_from_this()
-        );
+        handler_->onConnection(self);
     }
 }
 

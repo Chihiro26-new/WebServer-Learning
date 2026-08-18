@@ -46,7 +46,7 @@ public:
     void connectEstablished();
 
 private:
-
+    void shutdown();
     void setState(ConnectionState);
     void handleRead();
     void handleWrite();

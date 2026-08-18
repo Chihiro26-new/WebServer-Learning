@@ -1,7 +1,6 @@
 #include "Channel.h"
 #include <cstdint>
 #include <sys/epoll.h>
-#include <iostream>
 
 Channel::Channel(EventLoop* loop, int fd)
     : loop_(loop),
@@ -55,9 +54,6 @@ void Channel::updateLastEvents()
 void Channel::enableWriting()
 {
     events_ |= EPOLLOUT;
-    // std::cout<<"enable EPOLLOUT events="
-    //          <<events_
-    //          <<std::endl;
 }
 void Channel::enableReading()
 {

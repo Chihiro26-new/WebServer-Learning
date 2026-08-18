@@ -42,7 +42,7 @@ class TimerQueue
 public:
     TimerQueue();
     ~TimerQueue();
-    void cancel(TimerId timerId);//取消任务
+    void cancel(const TimerId &timerId);//取消任务
     TimerId add(std::shared_ptr<Timer> timer);//添加Timer任务
     void handleExpired();//处理
     TimePoint getNextExpire();//获取最近Timer

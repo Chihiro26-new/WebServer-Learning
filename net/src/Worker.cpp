@@ -1,7 +1,7 @@
 #include "Worker.h"
 #include "EventLoop.h"
 #include "TcpConnection.h"
-// #include <iostream>
+#include <iostream>
 Worker::Worker(
     std::shared_ptr<ProtocolHandler> handler
 )
@@ -9,6 +9,7 @@ Worker::Worker(
     , loop_(nullptr)
     , handler_(std::move(handler))
 {
+
 }
 void Worker::start()
 {
@@ -41,6 +42,14 @@ void Worker::addConnection(int fd)
                     loop_,
                     fd
                 );
+    //             std::cout
+    // << "expired="
+    // << conn->weak_from_this().expired()
+    // << std::endl;
+    //             std::cout 
+    //     << "use_count="
+    //     << conn.use_count()
+    //     << std::endl;
             conn->setProtocolHandler(handler_);
             conn->setCloseCallback(
                 [this](int fd)
@@ -56,5 +65,9 @@ void Worker::addConnection(int fd)
 
 void Worker::removeConnection(int fd)
 {
+    // std::cout
+    //     << "remove fd="
+    //     << fd
+    //     << std::endl;
     connections_.erase(fd);
 }

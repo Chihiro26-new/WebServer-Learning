@@ -51,7 +51,7 @@ public:
     size_t prependableBytes() const;// 前置空间
 
     const char* peek() const;// 当前可读位置
-    void shrink();
+    void shrink();//缩容策略
     // 写入数据
     void append(const char* data,size_t len);
     void append(const std::string& data);

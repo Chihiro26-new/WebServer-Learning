@@ -5,7 +5,9 @@
 #include "TimerId.h"
 #include "noncopyable.h"
 #include <thread>
-#include <mutex>
+#include "Mutex.h"
+#include <atomic>
+
 class EventLoop :public noncopyable
 {
 public:
@@ -30,10 +32,10 @@ private:
     int wakeupFd_;
     std::unique_ptr<Channel>wakeupChannel_;//唤醒eventloop
 
-    std::mutex mutex_;
+    MutexLock mutex_;
     std::vector<Functor> pendingFunctors_;
 
-    bool quit_;
+    std::atomic_bool quit_;
     std::thread::id threadId_;
     
     void doPendingFunctors();
