@@ -21,4 +21,5 @@ target_link_libraries(
     server_net
     PUBLIC
     server_base
+    server_protocol
 )

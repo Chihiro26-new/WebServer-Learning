@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 class TcpConnection;
-
 class ProtocolHandler
 {
 public:

@@ -4,11 +4,11 @@
 #include "ConnectionTimerManager.h"
 #include "Socket.h"
 #include <functional>
-
 class ProtocolHandler;
 class Channel;
 class EventLoop;
 class ConnectionTimerManager;
+class ProtocolDispatcher;
 enum class ConnectionState
 {
     Connecting,
@@ -66,5 +66,6 @@ private:
     std::shared_ptr<ProtocolHandler>handler_;
     ConnectionState state_;//当前 TCP 生命周期状态
     CloseReason closeReason_;//关闭原因
-    ConnectionTimerManager timerManager_;   
+    ConnectionTimerManager timerManager_;
+    std::shared_ptr<ProtocolDispatcher>dispatcher_;
 };
