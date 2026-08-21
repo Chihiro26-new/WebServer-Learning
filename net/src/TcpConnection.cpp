@@ -6,7 +6,6 @@
 #include "EventLoop.h"
 #include <sys/socket.h>
 #include <cassert>
-#include <iostream>
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
     :socket_(fd),loop_(loop),channel_(std::make_unique<Channel>(loop,fd))
     ,state_(ConnectionState::Connecting),closeReason_(CloseReason::None)
@@ -18,19 +17,10 @@ TcpConnection::TcpConnection(EventLoop*loop,int fd)
     channel_->setErrorHandler([this](){handleError();});
     channel_->setConnHandler([this](){handleConn();});
     loop_->addChannel(channel_.get());
-    // std::cout
-    //     <<"create fd="
-    //     <<fd
-    //     <<" this="
-    //     <<this
-    //     <<std::endl;
+
 }
 TcpConnection::~TcpConnection()
 {
-    // std::cout
-    //     << "destroy this="
-    //     << this
-    //     << std::endl;
     assert(state_ == ConnectionState::Disconnected);
 }
 
@@ -88,14 +78,6 @@ void TcpConnection::forceClose(CloseReason reason)
 }
 void TcpConnection::setState(ConnectionState state)
 {
-    // std::cout
-    //     << "fd="
-    //     << socket_.getfd()
-    //     << " state "
-    //     << static_cast<int>(state_)
-    //     << " -> "
-    //     << static_cast<int>(state)
-    //     << std::endl;
     state_=state;
 }
 
@@ -115,12 +97,7 @@ void TcpConnection::maybeShrinkBuffer()
 void TcpConnection::handleRead()
 {
     ssize_t n=inputBuffer_.readFd(socket_.getfd());
-    // std::cout 
-    // <<"read bytes="
-    // <<n
-    // <<" buffer readable="
-    // <<inputBuffer_.readableBytes()
-    // <<std::endl;
+
     if(n>0)
     {
         timerManager_.refreshIdleTimer();
@@ -133,7 +110,6 @@ void TcpConnection::handleRead()
     }
     else if(n == 0)
     {
-        // std::cout<<"client closed\n";
         handleClose();
     }
     else
@@ -220,7 +196,6 @@ void TcpConnection::handleError()
         &err,
         &len
     );
-    // std::cerr << "socket error: "<< strerror(err)<< std::endl;
     forceClose(CloseReason::Error);
 }
 void TcpConnection::handleConn()
@@ -232,8 +207,6 @@ void TcpConnection::connectEstablished()
 {
     auto self = shared_from_this();
 
-    // std::cout 
-    //     << "self ok\n";
 
     timerManager_.setConnection(self);
 

@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     EventLoop mainLoop;
 
     WorkerPool workerPool(
-        6,
+        workerNum,
         [fileHandler]()
         {
             return std::make_shared<HttpHandler>(
@@ -91,27 +91,8 @@ int main(int argc, char *argv[])
         port
     );
 
-//     std::thread statsThread([]
-// {
-//     std::this_thread::sleep_for(
-//         std::chrono::seconds(30)
-//     );
 
-//     std::cout
-//         << "\nappendCount = "
-//         << getAppendCount()
-//         << '\n';
-
-//     std::cout
-//         << "totalAppendBytes = "
-//         << getTotalAppendBytes()
-//         << '\n';
-//     std::cout
-//     << "resizeCount = "
-//     << getResizeCount()
-//     << '\n';
-// });
     mainLoop.loop();
-    // statsThread.join();
+
     return 0;
 }

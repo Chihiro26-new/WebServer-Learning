@@ -4,6 +4,7 @@
 #include "ConnectionTimerManager.h"
 #include "Socket.h"
 #include <functional>
+
 class ProtocolHandler;
 class Channel;
 class EventLoop;

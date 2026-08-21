@@ -21,10 +21,7 @@ void Epoll::add(Channel*channel)
     epoll_event event{};
     event.data.fd=fd;
     event.events=channel->getEvents();
-    //     std::cout 
-    // <<"epoll add fd="
-    // <<fd
-    // <<std::endl;
+
     if(epoll_ctl(
         epollFd_,
         EPOLL_CTL_ADD,

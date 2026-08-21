@@ -76,10 +76,7 @@ void HttpHandler::onMessage(
             response.appendTo(outputBuffer);
             conn->enableOutput();
             context->reset();
-            //         std::cout
-            // << "after reset, remain="
-            // << buffer.readableBytes()
-            // << std::endl;
+
         }
         else
             break;

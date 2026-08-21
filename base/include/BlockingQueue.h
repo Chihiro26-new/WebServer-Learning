@@ -39,7 +39,6 @@ public:
             cond_.wait();
         }
 
-
         T value = queue_.front();
 
         queue_.pop_front();
