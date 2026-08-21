@@ -1,6 +1,6 @@
 #include "Server.h"
 #include "HttpHandler.h"
-#include "EchoHandler.h"
+#include "ProtocolDispatcher.h"
 // #include "RedisHandler.h"
 #include <iostream>
 #include <memory>
@@ -63,28 +63,23 @@ int main(int argc, char *argv[])
               << "  workerNum  = " << workerNum << '\n';
 
     auto fileHandler =
-        std::make_shared<StaticFileHandler>("./www");
+    std::make_shared<StaticFileHandler>(
+        "./www"
+    );
 
-   
 
-    auto echoHandler =
-        std::make_shared<EchoHandler>();
+    auto dispatcher =
+        std::make_shared<MultiProtocolDispatcher>(
+            fileHandler
+        );
 
     EventLoop mainLoop;
-
     WorkerPool workerPool(
         workerNum,
-        [fileHandler]()
-        {
-            return std::make_shared<HttpHandler>(
-                fileHandler
-            );
-        }
+        dispatcher
     );
   
-
     workerPool.start();
-
     Server server(
         &mainLoop,
         &workerPool,

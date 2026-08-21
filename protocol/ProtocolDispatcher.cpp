@@ -3,16 +3,21 @@
 #include "RedisHandler.h"
 #include <string.h>
 #include "Buffer.h"
+#include <iostream>
+ProtocolDispatcher::~ProtocolDispatcher()
+{
+
+}
 std::shared_ptr<ProtocolHandler>MultiProtocolDispatcher::
 dispatch(const Buffer& buffer) 
 {
+    // std::cout<<"dispatch called"<<std::endl;
     if(isHttp(buffer))
     {
+        // std::cout<<"HTTP detected"<<std::endl;
         return std::make_shared<HttpHandler>(
         staticHandler_);
     }
-
-
     if(isRedis(buffer))
     {
         return std::make_shared<RedisHandler>();
@@ -30,6 +35,7 @@ dispatch(const Buffer& buffer)
         memcmp(data,"GET ",4)==0 ||
         memcmp(data,"POST",4)==0
     );
+    std::cout<<"http"<<std::endl;
 };
 bool MultiProtocolDispatcher::isRedis(const Buffer&buffer)
 {

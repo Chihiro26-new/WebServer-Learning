@@ -2,18 +2,14 @@
 #include "noncopyable.h"
 #include <memory>
 #include <vector>
-#include <functional>
 class Worker;
-class ProtocolHandler;
-
+class ProtocolDispatcher;
 class WorkerPool : noncopyable
 {
 public:
-    using HandlerFactory =
-        std::function<std::shared_ptr<ProtocolHandler>()>;
     WorkerPool(
         int numWorkers,
-        HandlerFactory factory
+        std::shared_ptr<ProtocolDispatcher> dispatcher
     );
     ~WorkerPool();
 

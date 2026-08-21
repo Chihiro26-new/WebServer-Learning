@@ -30,12 +30,11 @@ void HttpHandler::onMessage(
     TcpConnectionPtr conn)
 {
     // std::cout << "HttpHandler onMessage" << std::endl;
-    auto it =contexts_.find(conn.get());
-    if(it == contexts_.end())
-    {
-        // std::cout<< "context not found"<< std::endl;
-        return;
-    }
+    auto [it, inserted] =
+    contexts_.emplace(
+        conn.get(),
+        std::make_shared<HttpContext>()
+    );
     auto context =it->second;
     auto& buffer =conn->getInputBuffer();
     while(buffer.readableBytes()>0)

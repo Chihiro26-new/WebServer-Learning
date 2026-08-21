@@ -1,12 +1,12 @@
 #pragma once
 #include "EventLoopThread.h"
 class TcpConnection;
-class ProtocolHandler;
+class ProtocolDispatcher;
 class Worker : noncopyable
 {
 public:
     explicit Worker(
-        std::shared_ptr<ProtocolHandler> handler
+        std::shared_ptr<ProtocolDispatcher> dispatcher
     );
 
     void start();
@@ -18,11 +18,12 @@ private:
     EventLoopThread loopThread_;
 
     EventLoop* loop_;
-
-    std::shared_ptr<ProtocolHandler> handler_;
-
+      //负责协议选择
+    std::shared_ptr<ProtocolDispatcher>
+        dispatcher_;
     std::unordered_map<
         int,
         std::shared_ptr<TcpConnection>
     > connections_;
+
 };

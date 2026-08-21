@@ -2,20 +2,17 @@
 #include "WorkerPool.h"
 WorkerPool::WorkerPool(
     int numWorkers,
-    HandlerFactory factory
+    std::shared_ptr<ProtocolDispatcher> dispatcher
 )
-    : next_(0),
-      started_(false)
+:
+next_(0),
+started_(false)
 {
-    workers_.reserve(numWorkers);
-
-    for(int i = 0; i < numWorkers; ++i)
+    for(int i = 0; i < numWorkers; i++)
     {
-        auto handler = factory();
-
         workers_.push_back(
             std::make_unique<Worker>(
-                std::move(handler)
+                dispatcher
             )
         );
     }

@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdio.h>
+#include <iostream>
 const int LISTENQ=2048; 
 Socket::Socket(int fd):fd_(fd){}
 Socket::~Socket()
@@ -19,8 +20,8 @@ Socket::~Socket()
 Socket::Socket(Socket&& other) noexcept
     : fd_(other.fd_)
 {
-    // std::cout << "move construct from fd = "
-    //           << other.fd_ << std::endl;
+    //  std::cout << "move construct from fd = "
+    //          << other.fd_ << std::endl;
     other.fd_ = -1;
 }
 Socket& Socket::operator=(Socket&& other) noexcept

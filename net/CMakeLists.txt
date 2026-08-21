@@ -16,10 +16,8 @@ target_include_directories(server_net
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-
 target_link_libraries(
     server_net
     PUBLIC
     server_base
-    server_protocol
 )

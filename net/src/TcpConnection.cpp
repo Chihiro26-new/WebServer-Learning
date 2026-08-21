@@ -6,6 +6,7 @@
 #include "EventLoop.h"
 #include <sys/socket.h>
 #include <cassert>
+#include <iostream>
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
     :socket_(fd),loop_(loop),channel_(std::make_unique<Channel>(loop,fd))
     ,state_(ConnectionState::Connecting),closeReason_(CloseReason::None)
@@ -85,7 +86,10 @@ void TcpConnection::setCloseCallback(CloseCallback cb)
 {
     closeCallback_ = std::move(cb);
 }
-
+void TcpConnection::setProtocolFactory(ProtocolFactory factory)
+{
+    factory_ = std::move(factory);
+}
 void TcpConnection::maybeShrinkBuffer()
 {
     if(inputBuffer_.size()> 1024 * 1024 &&
@@ -96,12 +100,21 @@ void TcpConnection::maybeShrinkBuffer()
 }
 void TcpConnection::handleRead()
 {
+    // std::cout<<"handleRead"<<std::endl;
     ssize_t n=inputBuffer_.readFd(socket_.getfd());
 
     if(n>0)
     {
         timerManager_.refreshIdleTimer();
         // std::cout<<"call message callback\n";
+         // 第一次收到数据，选择协议
+        if(!handler_ && factory_)
+        {
+            handler_ =
+                factory_(
+                    inputBuffer_
+                );
+        }
         if(handler_)
         {
             handler_->onMessage(shared_from_this());
@@ -127,7 +140,8 @@ void TcpConnection::shutdown()
 }
 void TcpConnection::handleWrite()
 {
-     while(outputBuffer_.readableBytes()>0)
+    // std::cout<<"handleWrite"<<std::endl;
+    while(outputBuffer_.readableBytes()>0)
     {
         ssize_t n = send(
             socket_.getfd(),

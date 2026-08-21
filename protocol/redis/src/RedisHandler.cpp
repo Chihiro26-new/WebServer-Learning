@@ -1,7 +1,18 @@
 #include "RedisHandler.h"
-#include "TcpConnection.h"
-
 void RedisHandler::onMessage(TcpConnectionPtr conn) 
+{
+
+}
+void RedisHandler::onConnection(
+    TcpConnectionPtr
+)
+{
+
+}
+
+void RedisHandler::onClose(
+    TcpConnectionPtr
+)
 {
 
 }

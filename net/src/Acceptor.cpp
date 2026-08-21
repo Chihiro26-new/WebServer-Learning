@@ -2,11 +2,16 @@
 #include "EventLoop.h"
 #include <sys/socket.h>
 #include <stdio.h>
+#include <iostream>
 Acceptor::Acceptor(EventLoop* loop,int port):
     acceptSocket_(Socket::createListenSocket(port)),
     channel_(loop, acceptSocket_.getfd()),
     loop_(loop)
 {
+    // std::cout
+    //     <<"Acceptor fd="
+    //     <<acceptSocket_.getfd()
+    //     <<std::endl;
     channel_.setReadHandler([this](){handleRead();});
     loop_->addChannel(&channel_);
 }
@@ -29,6 +34,7 @@ void Acceptor::handleRead()
         perror("accept");
         return;
     }
+
     if(newConnectionCallback_)
     {
         newConnectionCallback_(connfd);

@@ -31,7 +31,7 @@ class TcpConnection:
 public:
     using TcpConnectionPtr=std::shared_ptr<TcpConnection>;
     using CloseCallback = std::function<void(int)>;
-    
+    using ProtocolFactory =std::function<std::shared_ptr<ProtocolHandler>(Buffer&)>;
 public:
     TcpConnection(EventLoop* loop,int fd);
     ~TcpConnection();
@@ -45,7 +45,7 @@ public:
     void forceClose(CloseReason reason);
     void setCloseCallback(CloseCallback cb);//通知上层server关闭tcp流
     void connectEstablished();
-
+    void setProtocolFactory(ProtocolFactory factory);
 private:
     void shutdown();
     void setState(ConnectionState);
@@ -56,7 +56,7 @@ private:
     void handleConn();
     void maybeShrinkBuffer();
 private:
-   
+    ProtocolFactory factory_;
     CloseCallback closeCallback_;
     Socket socket_;
     EventLoop* loop_;
@@ -67,5 +67,4 @@ private:
     ConnectionState state_;//当前 TCP 生命周期状态
     CloseReason closeReason_;//关闭原因
     ConnectionTimerManager timerManager_;
-    std::shared_ptr<ProtocolDispatcher>dispatcher_;
 };
