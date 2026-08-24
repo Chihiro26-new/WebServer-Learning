@@ -1,6 +1,4 @@
 #include"ProtocolDispatcher.h"
-#include "HttpHandler.h"
-#include "RedisHandler.h"
 #include <string.h>
 #include "Buffer.h"
 #include <iostream>
@@ -25,20 +23,24 @@ dispatch(const Buffer& buffer)
     return nullptr;
 }
 
- bool MultiProtocolDispatcher::isHttp(const Buffer&buffer)
+bool MultiProtocolDispatcher::isHttp(const Buffer&buffer)
 {
     auto data = buffer.peek();
-    return buffer.readableBytes() >= 4
-    &&
-    (
-        memcmp(data,"GET ",4)==0 ||
-        memcmp(data,"POST",4)==0
-    );
-    std::cout<<"http"<<std::endl;
+    bool result =
+        buffer.readableBytes() >= 4 &&
+        (
+            memcmp(data, "GET ", 4) == 0 ||
+            memcmp(data, "POST", 4) == 0
+        );
+
+    // if (result)
+    //     std::cout << "http" << std::endl;
+    return result;
 };
 bool MultiProtocolDispatcher::isRedis(const Buffer&buffer)
 {
-    return buffer.readableBytes()>0
-    &&
-    buffer.peek()[0]=='*';
+    auto result=buffer.readableBytes()>0&&buffer.peek()[0]=='*';
+    // if(result)
+    //     std::cout<<"redis"<<"\n";
+    return result;
 }
