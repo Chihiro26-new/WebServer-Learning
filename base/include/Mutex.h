@@ -24,7 +24,7 @@ class LockGuard : noncopyable
 {
 public:
     explicit LockGuard(MutexLock &_mutex) : mutex_(_mutex)
-    ,locked_(true) { mutex_.lock(); }
+    ,locked_(true) { mutex_.lock();};
     ~LockGuard();
     void unlock();
 private: 

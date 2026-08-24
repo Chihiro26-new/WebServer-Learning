@@ -43,7 +43,7 @@ public:
     void enableOutput();
     void startDisconnect();
     void forceClose(CloseReason reason);
-    void setCloseCallback(CloseCallback cb);//通知上层server关闭tcp流
+    void setCloseCallback(CloseCallback cb);//通知上层关闭tcp
     void connectEstablished();
     void setProtocolFactory(ProtocolFactory factory);
 private:
@@ -56,7 +56,7 @@ private:
     void handleConn();
     void maybeShrinkBuffer();
 private:
-    ProtocolFactory factory_;
+    ProtocolFactory factory_;//协议解析回调
     CloseCallback closeCallback_;
     Socket socket_;
     EventLoop* loop_;

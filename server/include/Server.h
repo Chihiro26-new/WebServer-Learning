@@ -33,8 +33,6 @@ private:
     // 3. 将 fd 分发给 WorkerPool
     EventLoop* loop_;
 
-    // Worker 池
-    //
     // Server 不直接管理 TcpConnection。
     // 连接建立后，由 Worker 接管其完整生命周期。
     WorkerPool* workerPool_;

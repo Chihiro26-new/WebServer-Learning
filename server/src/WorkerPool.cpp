@@ -63,9 +63,7 @@ void WorkerPool::dispatch(int fd)
     Worker* worker = workers_[next_].get();
 
     ++next_;
-
     if (next_ >= workers_.size())
         next_ = 0;
-
     worker->addConnection(fd);
 }

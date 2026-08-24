@@ -52,12 +52,12 @@ bool Thread::started() const
     return started_;
 }
 
-std::thread::id Thread::tid() const
+const std::thread::id Thread::getTid() const
 {
     return tid_;
 }
 
-const std::string& Thread::name() const
+const std::string& Thread::getName() const
 {
     return name_;
 }

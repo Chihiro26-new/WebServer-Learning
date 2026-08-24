@@ -1,8 +1,6 @@
 #include "Mutex.h"
-#include <mutex>
-
 MutexLock::MutexLock() = default;
-MutexLock::~MutexLock() = default;
+MutexLock::~MutexLock()= default;
 void MutexLock::lock()
 {
     mutex_.lock();

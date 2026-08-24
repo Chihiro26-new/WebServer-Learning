@@ -22,9 +22,7 @@ public:
 
 private:
     // 所有 Worker
-    std::vector<
-        std::unique_ptr<Worker>
-    > workers_;
+    std::vector<std::unique_ptr<Worker>> workers_;
 
     // 当前轮询到的 Worker
     size_t next_;

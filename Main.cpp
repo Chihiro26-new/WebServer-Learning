@@ -1,13 +1,12 @@
 #include "Server.h"
-#include "HttpHandler.h"
 #include "ProtocolDispatcher.h"
-// #include "RedisHandler.h"
 #include <iostream>
-#include <memory>
 #include "EventLoop.h"
 #include "Util.h"
 #include "WorkerPool.h"
-// #include "Buffer.h"
+#include <memory>
+#include "RedisHandler.h"
+#include "HttpHandler.h"
 int main(int argc, char *argv[])
 {
     handle_for_sigpipe();
@@ -58,21 +57,26 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::cout << "Server config:\n"
+    std::cout << "  Server config:\n"
               << "  port       = " << port << '\n'
               << "  workerNum  = " << workerNum << '\n';
 
-    auto fileHandler =
-    std::make_shared<StaticFileHandler>(
-        "./www"
-    );
-
-
-    auto dispatcher =
-        std::make_shared<MultiProtocolDispatcher>(
-            fileHandler
+    auto staticHandler=
+        std::make_shared<StaticFileHandler>(
+            "./www"
         );
-
+    auto httpHandler=
+        std::make_shared<HttpHandler>(
+            staticHandler
+        );
+    auto redisHandler=
+        std::make_shared<RedisHandler>(
+        );
+    auto dispatcher=
+        std::make_shared<MultiProtocolDispatcher>(
+            httpHandler,
+            redisHandler
+        );
     EventLoop mainLoop;
     WorkerPool workerPool(
         workerNum,
@@ -85,9 +89,6 @@ int main(int argc, char *argv[])
         &workerPool,
         port
     );
-
-
     mainLoop.loop();
-
     return 0;
 }

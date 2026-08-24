@@ -39,17 +39,14 @@ public:
 
 
     bool started() const;// 判断线程是否已经启动
-    std::thread::id tid() const;//获取线程ID
-
-    const std::string& name() const; // 获取线程名称
+    const std::thread::id getTid() const;//获取线程ID
+    const std::string& getName() const; // 获取线程名称
 
 private:
 
     std::thread thread_;// 实际负责管理系统线程的std::thread 对象
     ThreadFunc func_; // 线程启动后真正执行的函数
-
     std::string name_;
-
     std::thread::id tid_;// 在线程真正启动后获取。
     bool started_;//标记线程是否启动
 };

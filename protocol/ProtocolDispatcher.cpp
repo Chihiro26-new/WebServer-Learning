@@ -15,12 +15,11 @@ dispatch(const Buffer& buffer)
     if(isHttp(buffer))
     {
         // std::cout<<"HTTP detected"<<std::endl;
-        return std::make_shared<HttpHandler>(
-        staticHandler_);
+        return httpHandler_;
     }
     if(isRedis(buffer))
     {
-        return std::make_shared<RedisHandler>();
+        return redisHandler_;
     }
 
     return nullptr;

@@ -19,10 +19,12 @@ class MultiProtocolDispatcher:public ProtocolDispatcher
 {
 public:
     explicit MultiProtocolDispatcher(
-        std::shared_ptr<StaticFileHandler> staticHandler
+        std::shared_ptr<ProtocolHandler> httpHandler,
+        std::shared_ptr<ProtocolHandler> redisHandler
     )
-        :
-        staticHandler_(staticHandler)
+    :
+    httpHandler_(std::move(httpHandler)),
+    redisHandler_(std::move(redisHandler))
     {
 
     }
@@ -33,5 +35,6 @@ public:
 private:    
     bool isHttp(const Buffer&buffer);
     bool isRedis(const Buffer&buffer);
-    std::shared_ptr<StaticFileHandler> staticHandler_;
+    std::shared_ptr<ProtocolHandler> httpHandler_;
+    std::shared_ptr<ProtocolHandler> redisHandler_;
 };
