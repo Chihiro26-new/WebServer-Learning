@@ -90,7 +90,7 @@ void LogStream::resetBuffer()
 }
 
 template<typename T>
-void LogStream::formatInteger(T)
+void LogStream::formatInteger(T value)
 {
     if (buffer_.available() < kMaxNumericSize)
         return;
