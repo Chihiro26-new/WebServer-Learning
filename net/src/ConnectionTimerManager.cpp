@@ -1,6 +1,7 @@
 #include "ConnectionTimerManager.h"
 #include "TcpConnection.h"
 #include "EventLoop.h"
+//#include <iostream>
 ConnectionTimerManager::ConnectionTimerManager(EventLoop* loop)
     :
     loop_(loop)
@@ -35,6 +36,7 @@ TimerId ConnectionTimerManager::createTimer(
 
 void ConnectionTimerManager::startIdleTimer()
 {
+
     createTimer(
         TimeoutType::Idle,
         Clock::now()+std::chrono::seconds(5),
@@ -105,13 +107,8 @@ void ConnectionTimerManager::cancel(
     auto index =
         static_cast<size_t>(type);
 
-    //  std::cout
-    //     << "cancel timer type="
-    //     << index
-    //     << std::endl;
     auto& timer =
         timers_[index];
-
     if(timer.valid())
     {
         loop_->cancelTimer(timer);

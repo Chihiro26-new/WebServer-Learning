@@ -1,19 +1,15 @@
 #include "Timer.h"
 #include "TimerId.h"
-#include <iostream>
+
 Timer::Timer(TimePoint expireTime,Callback cb):
     expireTime_(expireTime),
     callback_(std::move(cb))
 {
-    // std::cout 
-    //     << this
-    //     << std::endl;
+
 }
 Timer::~Timer()
 {
-    //   std::cout 
-    //     << this
-    //     << std::endl;
+
 }
 bool Timer::isExpired(TimePoint now)const
 {
@@ -76,7 +72,7 @@ void TimerQueue::handleExpired()
             break;
         }
         timers_.pop();//到期后移除
-        if(!timer->canceled())
+        if(timer->canceled())
         {
             continue;
         }

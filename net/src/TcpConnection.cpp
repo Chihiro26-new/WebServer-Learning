@@ -6,7 +6,7 @@
 #include "EventLoop.h"
 #include <sys/socket.h>
 #include <cassert>
-#include <iostream>
+//#include <iostream>
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
     :socket_(fd),loop_(loop),channel_(std::make_unique<Channel>(loop,fd))
     ,state_(ConnectionState::Connecting),closeReason_(CloseReason::None)
@@ -193,7 +193,6 @@ void TcpConnection::handleClose()
     channel_->setClosed();
 
     loop_->removeChannel(channel_.get());
-
     if(closeCallback_)
     {
         closeCallback_(socket_.getfd());
@@ -220,8 +219,6 @@ void TcpConnection::handleConn()
 void TcpConnection::connectEstablished()
 {
     auto self = shared_from_this();
-
-
     timerManager_.setConnection(self);
 
     setState(ConnectionState::Connected);

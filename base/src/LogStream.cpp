@@ -9,6 +9,8 @@ FixedBuffer<SIZE>::FixedBuffer()
 
 const char digits[] = "9876543210123456789";//正数负数
 const char* zero = digits + 9;//0位置
+
+const char digitsHex[] = "0123456789ABCDEF";
 static void reverse(char *first_,char *last_)
 {
    --last_;
@@ -38,6 +40,19 @@ size_t convert(char buf[], T value)
     return p-buf;
 }
 
+size_t convertHex(char buf[],unsigned long value)
+{
+    unsigned long i=value;
+    char *p=buf;
+    do{
+        int lsd=static_cast<int>(i%16);
+        i/=16;
+        *p++ = digitsHex[lsd];
+    }while(i!=0);
+    *p='\0';
+    reverse(buf,p);
+    return p-buf;
+}
 template<int SIZE>
 const char*FixedBuffer<SIZE>::data()const
 {
@@ -97,3 +112,82 @@ void LogStream::formatInteger(T value)
     size_t len=convert(buffer_.current(),value);
     buffer_.add(len);
 }
+
+LogStream&LogStream::operator<<(short v)
+{
+    *this<<static_cast<int>(v);
+    return *this;
+}
+LogStream& LogStream::operator<<(unsigned short v) 
+{
+    *this << static_cast<unsigned int>(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(int v)
+{
+    formatInteger(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(unsigned int v) 
+{
+    formatInteger(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(long v) 
+{
+    formatInteger(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(unsigned long v) 
+{
+    formatInteger(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(long long v) 
+{
+    formatInteger(v);
+    return *this;
+}
+
+LogStream& LogStream::operator<<(unsigned long long v) 
+{
+    formatInteger(v);
+    return *this;
+}
+LogStream& LogStream::operator<<(const void *p)
+{
+    unsigned long v=reinterpret_cast<unsigned long>(p);
+    if(buffer_.available()>=kMaxNumericSize)
+    {
+        char *buf=buffer_.current();
+        buf[0]='0';
+        buf[1]='x';
+        size_t len=convertHex(buf+2,v);
+        buffer_.add(len+2);
+    }
+    return *this;
+}
+
+LogStream& LogStream::operator<<(double v) 
+{
+    if(buffer_.available() >= kMaxNumericSize) {
+        int len = snprintf(buffer_.current(), kMaxNumericSize, "%.12g", v);
+        buffer_.add(len);
+    }
+    return *this;
+}
+
+LogStream& LogStream::operator<<(long double v) 
+{
+    if(buffer_.available() >= kMaxNumericSize) {
+        int len = snprintf(buffer_.current(), kMaxNumericSize, "%.12Lg", v);
+        buffer_.add(len);
+    }
+    return *this;
+}
+template class FixedBuffer<4096>;

@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <thread>
 #include <utility>
+//#include <iostream>
 static int createEventfd()
 {
     int fd = ::eventfd(
@@ -114,9 +115,6 @@ void EventLoop::loop()
     {
         auto expire = timerQueue_.getNextExpire();
         int timeout = getTimeout(expire);
-            // std::cout<<"epoll wait timeout = "
-            //  <<timeout
-            //  <<std::endl;
         auto channels = epoll_.poll(timeout);
         for(auto c:channels)
         {

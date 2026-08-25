@@ -7,10 +7,11 @@
 #include <memory>
 #include "RedisHandler.h"
 #include "HttpHandler.h"
+#include "Logger.h"
 int main(int argc, char *argv[])
 {
     handle_for_sigpipe();
-
+    LogStream log;
     int port = 8080;
     int workerNum = 4;
 
@@ -57,10 +58,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::cout << "  Server config:\n"
-              << "  port       = " << port << '\n'
-              << "  workerNum  = " << workerNum << '\n';
-
+    LOG_INFO << "Server config:"<<'\n';
+    LOG_INFO << "port = " << port<<'\n';
+    LOG_INFO << "workerNum = " << workerNum<<'\n';
     auto staticHandler=
         std::make_shared<StaticFileHandler>(
             "./www"
