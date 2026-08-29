@@ -61,6 +61,7 @@ public:
         buffer_.append(string.c_str(),string.size());
         return *this;
     }
+    void append(const char* data, int len) { buffer_.append(data, len);}
     const Buffer&getBuffer()const;
     void resetBuffer();
 private:

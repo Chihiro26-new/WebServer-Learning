@@ -1,5 +1,33 @@
 #pragma once
 #include "LogStream.h"
+#include <cstring>
+class SourceFile
+{
+public:
+    template<size_t N>
+    SourceFile(const char (&arr)[N])
+        :data_(arr),size_(N-1)
+    {
+        const char *slash =strrchr(data_,'/');
+        if (slash)
+        {
+            data_ = slash + 1;
+            size_ -= static_cast<int>(data_ - arr);
+        }
+    }
+    explicit SourceFile(const char *filename)
+        :data_(filename)
+    {
+        const char* slash = strrchr(filename, '/');
+        if (slash)
+        {
+            data_ = slash + 1;
+        }
+        size_ = static_cast<int>(strlen(data_));
+    }
+    const char* data_;
+    int size_;
+};
 class Logger
 {
 public:
@@ -11,7 +39,7 @@ public:
         ERROR
     };
     Logger(
-        const char* file,
+        const SourceFile& file,
         int line,
         Level level
     );
@@ -29,7 +57,7 @@ public:
     static void setLogLevel(Level level);
     static bool shouldLog(Level level);
 private:
-    const char* file_;
+    SourceFile file_;
     int line_;
     Level level_;
     LogStream stream_;
@@ -48,3 +76,7 @@ private:
 #define LOG_DEBUG\
     if (!Logger::shouldLog(Logger::Level::DEBUG));\
     else Logger(__FILE__, __LINE__, Logger::Level::DEBUG).stream()
+
+#define LOG_ERROR\
+    if (!Logger::shouldLog(Logger::Level::ERROR));\
+    else Logger(__FILE__, __LINE__, Logger::Level::ERROR).stream()

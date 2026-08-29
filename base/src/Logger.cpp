@@ -2,23 +2,21 @@
 #include "LogStream.h"
 #include <stdio.h>
 #include <chrono>
-Logger::Logger(const char* file,
+Logger::Logger(const SourceFile&file,
         int line,
         Level level)
 :file_(file),line_(line),level_(level)
 {
 
-    const char* slash = strrchr(file_, '/');
-    if (slash)
-    {
-        file_ = slash + 1;
-    }
     formatTime();
     stream_
         << '['
         << levelToString(level_)
-        << "] "
-        << file_
+        << "] ";
+    stream_.append(file_.data_,
+        file_.size_);
+
+    stream_
         << ':'
         << line_
         << ' ';
