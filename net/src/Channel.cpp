@@ -1,4 +1,5 @@
 #include "Channel.h"
+#include "Logger.h"
 #include <cstdint>
 #include <sys/epoll.h>
 
@@ -88,7 +89,7 @@ void Channel::handleEvents()
         // socket错误
         if (revents_ & EPOLLERR)
         {
-            // std::cout<< "Channel handleEvents:Error\n";
+            LOG_ERROR<< "Channel handleEvents:Error\n";
             if(errorHandler_)
                 errorHandler_();
             return;
@@ -96,7 +97,7 @@ void Channel::handleEvents()
         // 可读事件
         if (revents_ & (EPOLLIN | EPOLLPRI))
         {
-            // std::cout<< "Channel handleEvents:Read\n";
+            //LOG_INFO<< "Channel handleEvents:Read\n";
             if(readHandler_)
                 readHandler_();
             if(closed_)
@@ -106,7 +107,7 @@ void Channel::handleEvents()
         // 对端关闭
         if (revents_ & (EPOLLRDHUP | EPOLLHUP))
         {
-            // std::cout<< "Channel handleEvents:Close\n";
+            //LOG_INFO<< "Channel handleEvents:Close\n";
             if(closeHandler_)
                 closeHandler_();
             return;
@@ -114,7 +115,7 @@ void Channel::handleEvents()
         // 可写事件
         if (revents_ & EPOLLOUT)
         {
-            // std::cout<< "Channel handleEvents:Write\n";
+            //LOG_INFO<< "Channel handleEvents:Write\n";
             if(writeHandler_)
                 writeHandler_();
         }

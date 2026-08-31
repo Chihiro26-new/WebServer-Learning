@@ -6,7 +6,8 @@
 #include "EventLoop.h"
 #include <sys/socket.h>
 #include <cassert>
-//#include <iostream>
+#include "Logger.h"
+
 TcpConnection::TcpConnection(EventLoop*loop,int fd)
     :socket_(fd),loop_(loop),channel_(std::make_unique<Channel>(loop,fd))
     ,state_(ConnectionState::Connecting),closeReason_(CloseReason::None)
@@ -140,7 +141,7 @@ void TcpConnection::shutdown()
 }
 void TcpConnection::handleWrite()
 {
-    // std::cout<<"handleWrite"<<std::endl;
+    
     while(outputBuffer_.readableBytes()>0)
     {
         ssize_t n = send(
@@ -213,7 +214,7 @@ void TcpConnection::handleError()
 }
 void TcpConnection::handleConn()
 {
-    // std::cout<<"channal connection established"<<std::endl;
+   LOG_INFO<<"channal connection established";
 }
 
 void TcpConnection::connectEstablished()

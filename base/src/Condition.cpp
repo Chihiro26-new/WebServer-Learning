@@ -1,4 +1,6 @@
 #include "Condition.h"
+#include <chrono>
+#include <mutex>
 Condition::Condition(MutexLock&mutex)
     :mutex_(mutex)
 {
@@ -20,5 +22,14 @@ void Condition::wait()
         std::adopt_lock
     );
     cond_.wait(lock);
+    lock.release();
+}
+void Condition::waitFor(std::chrono::seconds timeout)
+{
+    std::unique_lock<std::mutex>lock(
+        mutex_.nativeHandle(),
+        std::adopt_lock
+    );
+    cond_.wait_for(lock,timeout);
     lock.release();
 }

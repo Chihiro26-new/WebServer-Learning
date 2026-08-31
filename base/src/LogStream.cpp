@@ -191,3 +191,4 @@ LogStream& LogStream::operator<<(long double v)
     return *this;
 }
 template class FixedBuffer<4096>;
+template class FixedBuffer<4*1024*1024>;

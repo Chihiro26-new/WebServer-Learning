@@ -7,6 +7,7 @@ class Condition : noncopyable
 public:
     explicit Condition(MutexLock&mutex);
     ~Condition();
+    void waitFor(std::chrono::seconds timeout);
     void wait();
     void notify();
     void notifyAll();

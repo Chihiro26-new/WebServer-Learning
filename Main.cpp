@@ -1,6 +1,5 @@
 #include "Server.h"
 #include "ProtocolDispatcher.h"
-#include <iostream>
 #include "EventLoop.h"
 #include "Util.h"
 #include "WorkerPool.h"
@@ -8,13 +7,27 @@
 #include "RedisHandler.h"
 #include "HttpHandler.h"
 #include "Logger.h"
+#include "AsyncLogger.h"
 int main(int argc, char *argv[])
 {
     handle_for_sigpipe();
     LogStream log;
     int port = 8080;
     int workerNum = 4;
+    AsyncLogger logger("./WebServer.log");
+    logger.start();
+    std::string msg(1024 * 1024, 'A'); // 1 MB
 
+    logger.append(msg.data(), msg.size());
+    logger.append(msg.data(), msg.size());
+    logger.append(msg.data(), msg.size());
+    logger.append(msg.data(), msg.size());
+    logger.append(msg.data(), msg.size());
+
+    std::this_thread::sleep_for(
+        std::chrono::seconds(2)
+    );
+    logger.stop();
     for (int i = 1; i < argc; ++i)
     {
         std::string arg = argv[i];
@@ -23,7 +36,7 @@ int main(int argc, char *argv[])
         {
             if (i + 1 >= argc)
             {
-                std::cerr << "Error: -p requires a port\n";
+                LOG_ERROR << "Error: -p requires a port\n";
                 return 1;
             }
 
@@ -33,7 +46,7 @@ int main(int argc, char *argv[])
         {
             if (i + 1 >= argc)
             {
-                std::cerr << "Error: -t requires a worker number\n";
+                LOG_ERROR << "Error: -t requires a worker number\n";
                 return 1;
             }
 
@@ -41,20 +54,20 @@ int main(int argc, char *argv[])
         }
         else
         {
-            std::cerr << "Unknown argument: " << arg << '\n';
+            LOG_ERROR << "Unknown argument: " << arg << '\n';
             return 1;
         }
     }
 
     if (port <= 0 || port > 65535)
     {
-        std::cerr << "Error: invalid port\n";
+        LOG_ERROR << "Error: invalid port\n";
         return 1;
     }
 
     if (workerNum <= 0)
     {
-        std::cerr << "Error: invalid worker number\n";
+        LOG_ERROR << "Error: invalid worker number\n";
         return 1;
     }
 
