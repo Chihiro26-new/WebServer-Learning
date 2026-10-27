@@ -17,7 +17,7 @@ public:
     void start();
     void shutdown();//关闭所有线程并阻塞
 
-    // 将 fd 分发给下一个 Worker
+    // 将 fd 分发给下一个 Worker,负载均衡
     void dispatch(int fd);
 
 private:

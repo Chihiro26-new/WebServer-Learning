@@ -10,7 +10,7 @@ Logger::Logger(const SourceFile&file,
 
     formatTime();
     stream_
-        << '['
+        << '['  
         << levelToString(level_)
         << "] ";
     stream_.append(file_.data_,
@@ -52,7 +52,6 @@ void Logger:: formatTime()
         std::chrono::system_clock::to_time_t(time);
 
     std::tm* tm = std::localtime(&t);
-
     char buf[32];
     std::strftime(
         buf,
@@ -86,10 +85,10 @@ Logger::FlushFunc  Logger::flush_=defaultFlush;
 
 void Logger::setOutput(OutputFunc output)
 {
-    output_ = output;
-}
+    output_ = std::move(output);
+} 
 
 void Logger::setFlush(FlushFunc flush)
 {
-    flush_=flush;
+    flush_=std::move(flush);
 }

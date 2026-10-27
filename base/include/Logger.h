@@ -1,6 +1,7 @@
 #pragma once
 #include "LogStream.h"
 #include <cstring>
+#include <functional>
 class SourceFile
 {
 public:
@@ -50,8 +51,8 @@ public:
     static const char* levelToString(Logger::Level level);
     void formatTime();
 
-    using OutputFunc = void (*)(const char*, size_t);
-    using FlushFunc=void(*)();
+    using OutputFunc = std::function<void(const char*, size_t)>;
+    using FlushFunc=std::function<void()>;
     static void setOutput(OutputFunc);//设置输出位置
     static void setFlush(FlushFunc);//设置flush时间
     static void setLogLevel(Level level);

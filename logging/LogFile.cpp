@@ -2,7 +2,7 @@
 LogFile::LogFile(const std::string& filename)
 :file_(filename, std::ios::out | std::ios::app)
 {
-
+    
 }
 LogFile::~LogFile()
 {

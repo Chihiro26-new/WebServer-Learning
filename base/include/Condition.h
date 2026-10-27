@@ -12,7 +12,6 @@ public:
     void notify();
     void notifyAll();
 private:    
-
     MutexLock&mutex_;
     std::condition_variable cond_;
 };

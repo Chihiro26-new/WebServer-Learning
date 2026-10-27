@@ -1,6 +1,4 @@
 #include "LogStream.h"
-#include <cstddef>
-#include <string.h>
 template<int SIZE>
 FixedBuffer<SIZE>::FixedBuffer()
     : writeIndex_(0)

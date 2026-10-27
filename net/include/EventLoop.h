@@ -33,12 +33,12 @@ private:
     std::unique_ptr<Channel>wakeupChannel_;//唤醒eventloop
 
     MutexLock mutex_;
-    std::vector<Functor> pendingFunctors_;
+    std::vector<Functor> pendingFunctors_;//队列
 
     std::atomic_bool quit_;
-    std::thread::id threadId_;
+    std::thread::id threadId_;//所属线程id
     
-    void doPendingFunctors();
+    void doPendingFunctors();//处理队列task
     void handleRead(); // 处理 wakeupFd_ 的可读事件，消费唤醒通知
     void wakeup();// 向 wakeupFd_ 写入事件，唤醒阻塞中的 EventLoop
 };

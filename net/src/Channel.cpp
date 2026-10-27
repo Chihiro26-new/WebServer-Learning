@@ -19,7 +19,7 @@ uint32_t Channel::getLastEvents()const{return lastEvents_;}
 int Channel::getFd() const{return fd_;}
 void Channel::setFd(int fd){fd_=fd;}
 void Channel::setClosed(){ closed_ = true;}
-bool Channel::isClosed(){return closed_;};
+bool Channel:: isClosed(){return closed_;};
 void Channel::setReadHandler(CallBack cb)
 {
     readHandler_ = std::move(cb);

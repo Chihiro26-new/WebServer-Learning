@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chihiro WebServer - Divergence Meter</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --orange: #ff6b1a;
+    --orange-bright: #ff8c42;
+    --orange-glow: rgba(255, 107, 26, 0.45);
+    --orange-soft: rgba(255, 107, 26, 0.12);
+    --tech-blue: #3b82f6;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background: 
+        radial-gradient(ellipse at 20% 20%, rgba(255, 107, 26, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+        var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 细网格背景 */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 720px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.8rem 2.4rem;
+    box-shadow: 
+        0 4px 6px -1px rgba(0,0,0,0.05),
+        0 20px 40px -12px rgba(0,0,0,0.08),
+        0 0 0 1px rgba(255,255,255,0.8) inset;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 顶部细橙线 */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--orange), var(--orange-bright), var(--orange), transparent);
+}
+
+/* 顶部信息栏 */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.8rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+}
+
+.top-bar .status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 8px #22c55e;
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Logo & 标题 */
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo {
+    font-size: 2.8rem;
+    margin-bottom: 0.4rem;
+    filter: drop-shadow(0 4px 12px rgba(255, 107, 26, 0.3));
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+}
+
+.sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 400;
+}
+
+/* ========== 发散计量器（核心） ========== */
+.meter-section {
+    margin: 2rem 0 2.2rem;
+    text-align: center;
+}
+
+.meter-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+    font-weight: 500;
+}
+
+.divergence-meter {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    box-shadow: 
+        0 10px 30px -5px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 0 0 1px rgba(0,0,0,0.6);
+    position: relative;
+}
+
+/* 辉光管 */
+.tube {
+    width: 36px;
+    height: 56px;
+    background: linear-gradient(180deg, #111 0%, #000 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.8);
+    border: 1px solid #222;
+    overflow: hidden;
+}
+
+.tube::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 4px;
+    background: radial-gradient(ellipse at center, rgba(255, 107, 26, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.tube-digit {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--orange-bright);
+    text-shadow: 
+        0 0 8px var(--orange-glow),
+        0 0 16px var(--orange-glow),
+        0 0 24px rgba(255, 107, 26, 0.3);
+    position: relative;
+    z-index: 2;
+    transition: all 0.15s;
+}
+
+.tube.dot {
+    width: 18px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.tube.dot .tube-digit {
+    font-size: 2rem;
+    color: var(--orange);
+}
+
+/* 计量器底部装饰线 */
+.meter-base {
+    height: 6px;
+    background: linear-gradient(90deg, #333, #555, #333);
+    border-radius: 0 0 6px 6px;
+    margin-top: -2px;
+    opacity: 0.7;
+}
+
+/* 状态标签 */
+.status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--orange-soft);
+    border: 1px solid rgba(255, 107, 26, 0.25);
+    color: var(--orange);
+    padding: 0.45rem 1.1rem;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 2rem;
+}
+
+.status-tag .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--orange-glow);
+    animation: pulse-dot 1.8s infinite;
+}
+
+/* 功能卡片 */
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.feature {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.3rem 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.feature:hover {
+    border-color: rgba(255, 107, 26, 0.4);
+    box-shadow: 0 8px 20px -6px rgba(255, 107, 26, 0.15);
+    transform: translateY(-4px);
+    background: #fff;
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--text);
+}
+
+.feature p {
+    font-size: 0.74rem;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+/* 按钮 */
+.btn {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+    padding: 0.95rem 1.8rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--orange), #e55a0f);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 8px 24px -6px var(--orange-glow);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px -6px rgba(255, 107, 26, 0.55);
+    background: linear-gradient(135deg, #ff7a2e, var(--orange));
+}
+
+.btn:active {
+    transform: translateY(-1px);
+}
+
+.btn.loading {
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+/* 响应框 */
+.response {
+    margin-top: 1.5rem;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.response.show {
+    max-height: 300px;
+    opacity: 1;
+}
+
+.res-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1.1rem;
+    background: #1e293b;
+    font-size: 0.75rem;
+    color: var(--orange-bright);
+    letter-spacing: 1px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    color: var(--orange);
+}
+
+pre {
+    padding: 1.1rem;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-align: left;
+    white-space: pre-wrap;
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 0;
+    line-height: 1.55;
+}
+
+pre .key { color: #f97316; }
+pre .str { color: #4ade80; }
+pre .num { color: #38bdf8; }
+
+/* 底部 */
+.footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.76rem;
+    color: var(--muted);
+}
+
+.footer span {
+    color: var(--orange);
+    font-weight: 500;
+}
+
+.el-psy {
+    margin-top: 0.6rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: #94a3b8;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+    .features {
+        grid-template-columns: 1fr;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+    .tube {
+        width: 30px;
+        height: 48px;
+    }
+    .tube-digit {
+        font-size: 1.4rem;
+    }
+    .card {
+        padding: 2rem 1.4rem;
+    }
+    .divergence-meter {
+        padding: 0.8rem 0.9rem;
+        gap: 3px;
+    }
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="top-bar">
+                <div>
+                    <span class="status-dot"></span>
+                    SYSTEM ONLINE
+                </div>
+                <div>WORLD LINE MONITOR</div>
+            </div>
+
+            <div class="header">
+                <div class="logo">⚡</div>
+                <h1>CHIHIRO WEBSERVER</h1>
+                <p class="sub">A lightweight HTTP server built with C++</p>
+            </div>
+
+            <!-- 发散计量器 -->
+            <div class="meter-section">
+                <div class="meter-label">Divergence Meter</div>
+                <div class="divergence-meter" id="meter">
+                    <div class="tube"><span class="tube-digit" data-pos="0">1</span></div>
+                    <div class="tube dot"><span class="tube-digit">.</span></div>
+                    <div class="tube"><span class="tube-digit" data-pos="1">0</span></div>
+                    <div class="tube"><span class="tube-digit" data-pos="2">4</span></div>
+                    <div class="tube"><span class="tube-digit" data-pos="3">8</span></div>
+                    <div class="tube"><span class="tube-digit" data-pos="4">5</span></div>
+                    <div class="tube"><span class="tube-digit" data-pos="5">9</span></div>
+                    <div class="tube"><span class="tube-digit" data-pos="6">6</span></div>
+                </div>
+            </div>
+
+            <div style="text-align:center;">
+                <div class="status-tag">
+                    <span class="dot"></span>
+                    Server Running · Reading Steiner Active
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3>EPOLL</h3>
+                    <p>High performance event-driven I/O</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔗</div>
+                    <h3>TCP</h3>
+                    <p>Non-blocking connection management</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🌐</div>
+                    <h3>HTTP</h3>
+                    <p>Request parsing and response</p>
+                </div>
+            </div>
+
+            <button class="btn" id="testBtn">
+                <span class="btn-text">Connect to Lab</span>
+            </button>
+
+            <div class="response" id="responseBox">
+                <div class="res-header">
+                    <span>READING STEINER // RESPONSE</span>
+                    <button class="close" id="closeBtn">×</button>
+                </div>
+                <pre id="responseContent"></pre>
+            </div>
+
+            <p class="footer">
+                Powered by <span>C++17</span> · <span>Linux</span> · <span>Reactor Pattern</span>
+            </p>
+            <p class="el-psy">El Psy Kongroo</p>
+        </div>
+    </div>
+
+<script>
+// 观测仪轻微跳动（模拟世界线波动）
+(function() {
+    const digits = document.querySelectorAll('.tube-digit[data-pos]');
+    const original = ['1','0','4','8','5','9','6'];
+
+    setInterval(() => {
+        if (Math.random() > 0.65) {
+            const idx = Math.floor(Math.random() * digits.length);
+            const el = digits[idx];
+            el.textContent = Math.floor(Math.random() * 10);
+            el.style.color = '#ff3b00';
+            el.style.textShadow = '0 0 12px #ff3b00, 0 0 24px #ff3b00';
+
+            setTimeout(() => {
+                el.textContent = original[idx];
+                el.style.color = '';
+                el.style.textShadow = '';
+            }, 140);
+        }
+    }, 1600);
+})();
+
+// 按钮逻辑
+const btn = document.getElementById('testBtn');
+const box = document.getElementById('responseBox');
+const content = document.getElementById('responseContent');
+const close = document.getElementById('closeBtn');
+
+btn.addEventListener('click', async () => {
+    btn.classList.add('loading');
+    btn.querySelector('.btn-text').textContent = 'Accessing...';
+    box.classList.remove('show');
+
+    // 触发一次明显的数字跳动
+    const digits = document.querySelectorAll('.tube-digit[data-pos]');
+    digits.forEach((el, i) => {
+        setTimeout(() => {
+            el.textContent = Math.floor(Math.random() * 10);
+            el.style.color = '#ff3b00';
+        }, i * 40);
+    });
+
+    await new Promise(r => setTimeout(r, 700));
+
+    // 恢复
+    const original = ['1','0','4','8','5','9','6'];
+    digits.forEach((el, i) => {
+        el.textContent = original[i];
+        el.style.color = '';
+    });
+
+    const data = {
+        status: 200,
+        message: "Hello from Chihiro WebServer ⚡",
+        server: "Chihiro/1.0",
+        protocol: "HTTP/1.1",
+        world_line: "1.048596%",
+        divergence: "Steins Gate",
+        time: new Date().toLocaleString(),
+        features: ["epoll", "non-blocking", "reactor"],
+        uptime: Math.floor(Math.random() * 86400) + "s",
+        reading_steiner: true
+    };
+
+    content.textContent = JSON.stringify(data, null, 2);
+    box.classList.add('show');
+
+    btn.classList.remove('loading');
+    btn.querySelector('.btn-text').textContent = 'Connect to Lab';
+});
+
+close.addEventListener('click', () => box.classList.remove('show'));
+</script>
+</body>
+</html>

@@ -43,14 +43,12 @@ void EventLoopThread::join()
 }
 void EventLoopThread::threadFunc()
 {
-    // std::cout << "EventLoopThread: thread started\n";
     EventLoop loop;
     {
         LockGuard lock(mutex_);
         loop_=&loop;
     }
     cond_.notify();
-    // std::cout << "EventLoopThread: loop start\n";
     loop.loop();
     {
         LockGuard lock(mutex_);

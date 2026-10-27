@@ -22,14 +22,18 @@ public:
     {
         {
             LockGuard lock(mutex_);
-
             queue_.push_back(value);
         }
 
         cond_.notify();
     }
 
-
+    void put(T&& x)
+    {
+        LockGuard lock(mutex_);
+        queue_.push_back(std::move(x));
+        cond_.notify();
+    }
     T take()
     {
         LockGuard lock(mutex_);

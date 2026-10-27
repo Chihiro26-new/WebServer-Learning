@@ -55,15 +55,13 @@ void WorkerPool::shutdown()
 
 void WorkerPool::dispatch(int fd)
 {
-    if (workers_.empty())
+    if(workers_.empty())
     {
         return;
     }
-
-    Worker* worker = workers_[next_].get();
-
+    Worker*worker=workers_[next_].get();
     ++next_;
-    if (next_ >= workers_.size())
-        next_ = 0;
+    if(next_>=workers_.size())
+        next_=0;
     worker->addConnection(fd);
 }

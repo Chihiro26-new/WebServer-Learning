@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <thread>
 #include <utility>
-//#include <iostream>
+
 static int createEventfd()
 {
     int fd = ::eventfd(
@@ -62,7 +62,6 @@ void EventLoop::runInLoop(Functor cb)
     }
     else
     {
-        // std::cout<<"thread id ="<<std::this_thread::get_id()<<std::endl;
         queueInLoop(std::move(cb));
     }
 }
@@ -72,7 +71,6 @@ void EventLoop::queueInLoop(Functor cb)
         LockGuard lock(mutex_);
         pendingFunctors_.push_back(std::move(cb));
     }
-    // std::cout<<"push thread id ="<<std::this_thread::get_id()<<std::endl;
     wakeup();
 }
 
@@ -111,24 +109,22 @@ TimerId EventLoop::addTimer(TimePoint expire,Timer::Callback cb)
 }
 void EventLoop::loop()
 {
-    while(!quit_)
-    {
-        auto expire = timerQueue_.getNextExpire();
-        int timeout = getTimeout(expire);
-        auto channels = epoll_.poll(timeout);
-        for(auto c:channels)
+   while(!quit_)
+   {
+        auto expire=timerQueue_.getNextExpire();
+        int timeout=getTimeout(expire);
+        auto channels=epoll_.poll(timeout);
+        for(auto channel:channels)
         {
-            c->handleEvents();
-            if(c->isClosed())
+            channel->handleEvents();
+            if(channel->isClosed())
                 continue;
-            if(c->hasEventsChanged())
-            {
-                epoll_.modify(c);
-            }
+            if(channel->hasEventsChanged())
+                epoll_.modify(channel);
         }
         timerQueue_.handleExpired();
         doPendingFunctors();
-    }
+   }
 }
 
 void EventLoop::quit()
@@ -136,9 +132,7 @@ void EventLoop::quit()
     if(isInLoopThread())
     {
         quit_=true;
-    }
-    else
-    {
+    }else {
         queueInLoop([this](){
             quit_=true;
         });
@@ -153,11 +147,6 @@ void EventLoop::handleRead()
         &one,
         sizeof(one)
     );
-    //  std::cout << "wakeup read: "
-    //           << n
-    //           << ", value = "
-    //           << one
-    //           << std::endl;
     if (n != sizeof(one))
     {
         perror("EventLoop::handleRead");
@@ -166,7 +155,6 @@ void EventLoop::handleRead()
 void EventLoop::wakeup()
 {
     uint64_t one = 1;
-    //  std::cout<<"wakeup thread id ="<<std::this_thread::get_id()<<std::endl;
     ssize_t n = writeNBytes(
         wakeupFd_,
         &one,
@@ -180,16 +168,15 @@ void EventLoop::wakeup()
 
 void EventLoop::doPendingFunctors()
 {
-    std::vector<Functor> functors;
-    {
-        LockGuard lock(mutex_);
-        functors.swap(pendingFunctors_);
-    }
-
-    for (auto& cb : functors)
-    {
+   std::vector<Functor>Functors;
+   {
+        LockGuard lock(mutex_); 
+        Functors.swap(pendingFunctors_);
+   }
+   for(auto&cb:Functors)
+   {
         cb();
-    }
+   }
 }
 
 void EventLoop::removeChannel(Channel*channel){epoll_.remove(channel);};
