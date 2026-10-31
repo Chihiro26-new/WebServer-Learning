@@ -4,7 +4,6 @@ FixedBuffer<SIZE>::FixedBuffer()
     : writeIndex_(0)
 {
 }
-
 const char digits[] = "9876543210123456789";//正数负数
 const char* zero = digits + 9;//0位置
 

@@ -8,6 +8,7 @@
 #include "RedisHandler.h"
 #include "HttpHandler.h"
 #include "Logger.h"
+#include "LogFile.h"
 #include "AsyncLogger.h"
 #include <fcntl.h>
 int main(int argc, char *argv[])
@@ -16,26 +17,25 @@ int main(int argc, char *argv[])
     LogStream log;
     int port = 8080;
     int workerNum = 4;
-    AsyncLogger logger("./WebServer.log");
+    // 测试日志配置
+    LogFile::LogFileOptions options;
+    options.rollSize = 4*1024 * 1024; // 1 MiB
+    options.maxFiles = 5;
+    options.directory = "./test_logs";
+    options.basename = "WebServer_";
+
+    AsyncLogger logger(options);
     Logger::setOutput([&logger]
         (const char *msg,size_t len){
         logger.append(msg, len);
     });
     logger.start();
-    std::string msg(1024 * 1024, 'A'); // 1 MB
-    int Logfd;
-    if((Logfd=open(
-        "./WebServer.log",
-        O_RDWR | O_CREAT | O_TRUNC,
-        0644))<0)
+    std::string msg(4*1024 * 1024, 'A'); // 1 MB
+    for (int i = 0; i < 5; ++i)
     {
-        perror("open file error!");
+        logger.append(msg.data(), msg.size());
     }
-    logger.append(msg.data(), msg.size());
-    logger.append(msg.data(), msg.size());
-    logger.append(msg.data(), msg.size());
-    logger.append(msg.data(), msg.size());
-    logger.append(msg.data(), msg.size());
+
     logger.append("\n", 1);
     std::this_thread::sleep_for(
         std::chrono::seconds(2)
@@ -83,16 +83,16 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    LOG_INFO << "Server config:"<<'\n';
-    LOG_INFO << "port = " << port<<'\n';
-    LOG_INFO << "workerNum = " << workerNum<<'\n';
-    for (int i = 0; i < 100; ++i)
-    {
-        LOG_INFO << "test " << i << '\n';
-    }
+    // LOG_INFO << "Server config:"<<'\n';
+    // LOG_INFO << "port = " << port<<'\n';
+    // LOG_INFO << "workerNum = " << workerNum<<'\n';
+    // for (int i = 0; i < 100; ++i)
+    // {
+    //     LOG_INFO << "test " << i << '\n';
+    // }
     auto staticHandler=
         std::make_shared<StaticFileHandler>(
-            "../www"
+            "./www"
         );
     auto httpHandler=
         std::make_shared<HttpHandler>(

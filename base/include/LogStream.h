@@ -47,7 +47,7 @@ public:
     {
         buffer_.append(&v,1);
         return *this;
-    }
+    }  
     LogStream&operator<<(const char *str)
     {
         if(str)
@@ -64,8 +64,8 @@ public:
     void append(const char* data, size_t len) { buffer_.append(data, len);}
     const Buffer&getBuffer()const;
     void resetBuffer();
-private:
-    template <typename T>
+private:  
+    template <typename T>//格式化整数
     void formatInteger(T);
     Buffer buffer_;
 };

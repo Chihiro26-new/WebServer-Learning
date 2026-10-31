@@ -4,10 +4,9 @@
 #include "noncopyable.h"
 #include "Mutex.h"
 #include "LogStream.h"
-#include <memory>
 #include <vector>
 #include <atomic>
-
+#include "LogFile.h"
 /**
  * @brief 异步日志系统
  *
@@ -34,7 +33,7 @@ class AsyncLogger:noncopyable
 public:
     using Buffer=FixedBuffer<4*1024*1024>;
     using BufferPtr = std::unique_ptr<Buffer>;
-    AsyncLogger(const std::string& logPath,int flushInterval=3);
+    AsyncLogger(const LogFile::LogFileOptions& options,const int flushInterval=3);
     ~AsyncLogger();
     void stop();
     void start();
@@ -42,7 +41,7 @@ public:
 private:
     void ThreadFunc();
     const int flushInterval_;
-    const std::string logPath_;
+    LogFile logFile_;
     Thread thread_;
     std::atomic<bool>running_;
     BufferPtr currentBuffer_;
