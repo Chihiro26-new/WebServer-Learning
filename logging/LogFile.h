@@ -23,10 +23,14 @@ public:
     bool openFile();
 
     std::string getLogFilename()const;
+
+     void setFailCount(int count) {
+        failCount_ = count;
+    }
 private:
     LogFileOptions options_;
     std::ofstream file_;
-
+    int failCount_ = 0;
     size_t writtenBytes_=0;
     size_t currentFileIndex_ = 0;
     bool loadState();

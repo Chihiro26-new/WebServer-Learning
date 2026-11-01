@@ -38,6 +38,11 @@ public:
     void stop();
     void start();
     void append(const char *logline,size_t len);
+
+    void setLogFileFailCountForTest(int count) {
+        logFile_.setFailCount(count);
+    }
+
 private:
     void ThreadFunc();
     const int flushInterval_;

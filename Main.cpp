@@ -3,6 +3,7 @@
 #include "EventLoop.h"
 #include "Util.h"
 #include "WorkerPool.h"
+#include <chrono>
 #include <cstddef>
 #include <memory>
 #include "RedisHandler.h"
@@ -29,10 +30,12 @@ int main(int argc, char *argv[])
         (const char *msg,size_t len){
         logger.append(msg, len);
     });
+    logger.setLogFileFailCountForTest(2);
     logger.start();
-    std::string msg(4*1024 * 1024, 'A'); // 1 MB
+    std::string msg(4*1024 * 1024, 'A'); 
     for (int i = 0; i < 5; ++i)
     {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         logger.append(msg.data(), msg.size());
     }
 

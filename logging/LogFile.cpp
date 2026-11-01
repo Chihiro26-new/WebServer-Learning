@@ -1,7 +1,5 @@
 #include "LogFile.h"
 #include <filesystem>
-#include <stdexcept>
-#include <string>
 #include <iostream>
 LogFile::LogFile()
     :LogFile(LogFileOptions{})
@@ -68,23 +66,25 @@ LogFile::~LogFile()
 }
 bool LogFile::append(const char*logline,size_t len)
 {
-    std::cout << "writtenBytes_ = " << writtenBytes_
-          << ", len = " << len
-          << ", rollSize = " << options_.rollSize
-          << '\n';
-    std::cout << "currentFileIndex_ = "
-          << currentFileIndex_ << '\n';
-    if  (!file_.is_open()||!file_)
+   std::cout << "进入 append\n";
+    if (failCount_ > 0) {
+        --failCount_;
+        std::cout << "故障注入失败，剩余次数: "
+              << failCount_ << '\n';
         return false;
-    if  (writtenBytes_>0&&
-        writtenBytes_ <= options_.rollSize &&
-        len > options_.rollSize - writtenBytes_)
+    }
+    std::cout << "开始真实写入\n";
+    if(!file_.is_open()||!file_)
+        return false;
+    if( writtenBytes_>0&&
+        writtenBytes_<=options_.rollSize&&
+        len>options_.rollSize-writtenBytes_)
     {
-        if (!rollFile())
+        if(!rollFile())
             return false;
     }
-
-    file_.write(logline, static_cast<std::streamsize>(len));
+    file_.write(logline,static_cast<std::streamsize>(len));
+    std::cout << "真实写入结束\n";
     if(!file_.good())
         return false;
     writtenBytes_+=len;
